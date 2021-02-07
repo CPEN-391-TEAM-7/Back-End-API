@@ -1,0 +1,26 @@
+{
+    "name": "Back-End-API",
+    "version": "1.0.0",
+    "description": "Backend Endpoints",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/CPEN-391-TEAM-7/Back-End-API.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/CPEN-391-TEAM-7/Back-End-API/issues"
+    },
+    "homepage": "https://github.com/CPEN-391-TEAM-7/Back-End-API#readme",
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "mongoose": "^5.11.15"
+    }
+}
