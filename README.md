@@ -1,4 +1,36 @@
-# WebApp
+# Backend
+
+## Steps for local use (Mac)
+### Setup
+Inside the cloned directory run:
+```
+npm ci
+```
+
+Then:
+```
+brew install mongodb/brew/mongodb-community
+```
+Next:
+```
+mongo
+```
+
+Inside the mongo interface:
+```
+use Securify
+```
+
+### Use
+Inside the cloned directory run:
+```
+npm start
+```
+
+If there were any new libraries installed you my need to run
+```
+npm ci
+```
 
 ## Endpoints
 
