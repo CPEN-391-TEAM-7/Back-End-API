@@ -90,7 +90,7 @@ npm ci
 ```
 
 #### Add a new domain to a user's list of domains:
-`POST /domain?userId=<userID>&domainName=<domainName>&listType=whitelist`
+`POST /domain?userId=<userID>&domainName=<domainName>&listType=<listType>`
 
 #### Blacklist a domain for a user:
 `PUT /domain?userId=<userID>&listType=blacklist`
@@ -99,7 +99,7 @@ npm ci
 `PUT /domain?userId=<userID>&listType=whitelist`
 
 #### Get a user's activity between two datetimes:
-`GET /activity?userId=<userID>&start=<startDateTime>&end=<startDateTime>`
+`GET /activity?userId=<userID>&start=<startDateTime>&end=<endDateTime>`
 
 ```
 {
@@ -133,6 +133,6 @@ npm ci
 {
     userID: String,
     name: String,
-    googleAuthToken: DateTime, 
+    googleAuthToken: String, 
 }
 ```
