@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let User = new Schema({
-    UserID: {
+    userID: {
         type: Schema.Types.ObjectId
     },
-    Name: {
+    name: {
         type: String
     },
-    GoogleAuthToken: {
+    googleAuthToken: {
         type: String
     }
 });

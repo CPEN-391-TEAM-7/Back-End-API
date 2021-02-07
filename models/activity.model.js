@@ -2,19 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let Activity = new Schema({
-    ActivityID: {
+    activityID: {
         type: Schema.Types.ObjectId
     },
-    DomainID: {
+    domainID: {
         type: Schema.Types.ObjectId
     },
-    DomainName: {
+    domainName: {
         type: String
     },
-    UserID: {
+    userID: {
         type: Schema.Types.ObjectId
     },
-    Timestamp: {
+    timestamp: {
         type: Date
     }
 });

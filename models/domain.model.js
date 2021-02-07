@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let Domain = new Schema({
-    DomainID: {
+    domainID: {
         type: Schema.Types.ObjectId
     },
-    UserID: {
+    userID: {
         type: Schema.Types.ObjectId
     },
-    DomainName: {
+    domainName: {
         type: String
     },
-    ListType: {
+    listType: {
         type: String
     }
 });

@@ -34,43 +34,105 @@ npm ci
 
 ## Endpoints
 
-Example:
-
-`get/blacklist`
+#### Get a user's blacklist:
+`GET /domain/blacklist?userId=<userID>`
 
 ```
 {
     blacklist: [
-        www.asdfavnk.info,
-        www.knjfnbjf.info,
+        {
+            domainID: String,
+            domainName: String,
+        },
+        {
+            domainID: String,
+            domainName: String,
+        },
+        {
+            domainID: String,
+            domainName: String,
+        },
     ],
-    timestamp: ,
 }
 ```
 
-`get/whitelist`
+#### Get a user's whitelist:
+`GET /domain/whitelist?userId=<userID>`
 
 ```
 {
     whitelist: [
-        www.google.com,
-        www.ubc.ca,
+        {
+            domainID: String,
+            domainName: String,
+        },
+        {
+            domainID: String,
+            domainName: String,
+        },
+        {
+            domainID: String,
+            domainName: String,
+        },
     ],
-    timestamp: ,
 }
 ```
 
-`get/malware?<domain name>`
+#### Get a domain's status:
+`GET /domain?userId=<userID>&domainName=<domainName>`
 
 ```
 {
-    timestamp: ,
+    domainID: String,
+    domainName: String,
+    listType: String,
 }
 ```
 
-`get/ok?<domain name>`
+#### Add a new domain to a user's list of domains:
+`POST /domain?userId=<userID>&domainName=<domainName>&listType=whitelist`
+
+#### Blacklist a domain for a user:
+`PUT /domain?userId=<userID>&listType=blacklist`
+
+#### Blacklist a domain for a user:
+`PUT /domain?userId=<userID>&listType=whitelist`
+
+#### Get a user's activity between two datetimes:
+`GET /activity?userId=<userID>&start=<startDateTime>&end=<startDateTime>`
 
 ```
 {
-    timestamp: 111111,
+    activity: [
+        {
+            domainID: String,
+            domainName: String,
+            timestamp: DateTime,
+        },
+        {
+            domainID: String,
+            domainName: String,
+            timestamp: DateTime,
+        },
+        {
+            domainID: String,
+            domainName: String,
+            timestamp: DateTime,
+        },
+    ]
 }
+```
+
+#### Add a new activity to a user's activity list:
+`POST /activity?userId=<userID>&domainName=<domainName>`
+
+#### Get a user's data:
+`GET /user?userId=<userID>`
+
+```
+{
+    userID: String,
+    name: String,
+    googleAuthToken: DateTime, 
+}
+```
