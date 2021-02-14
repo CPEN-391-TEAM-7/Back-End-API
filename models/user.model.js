@@ -8,6 +8,9 @@ let User = new Schema({
     name: {
         type: String
     },
+    proxyID: {
+        type: Schema.Types.ObjectId
+    },
     googleAuthToken: {
         type: String
     }

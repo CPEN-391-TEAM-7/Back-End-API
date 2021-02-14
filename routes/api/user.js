@@ -6,7 +6,7 @@ const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
 
 /* 
-@route GET /domain/
+@route GET /user/
 @desc Test
 */
 userRoutes.route('/').get(function(req, res) {
