@@ -5,7 +5,7 @@ let Domain = new Schema({
     domainID: {
         type: Schema.Types.ObjectId
     },
-    userID: {
+    proxyID: {
         type: Schema.Types.ObjectId
     },
     domainName: {
