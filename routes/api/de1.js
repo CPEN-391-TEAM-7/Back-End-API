@@ -32,8 +32,8 @@ de1Routes.route('/verify').get(function(req, res) {
     });
 
     // Switch to DE1 values
-    let de1IP = "localhost";
-    let de1Port = 1234;
+    let de1IP = "50.98.133.70";
+    let de1Port = 41234;
 
     socket.send(domain, 0, domain.length, de1Port, de1IP, function(err) {
         if (err)
