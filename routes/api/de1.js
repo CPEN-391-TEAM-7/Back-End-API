@@ -1,6 +1,7 @@
 const express = require("express");
 const dgram = require("dgram");
 const bunyan = require("bunyan");
+const url = require("url");
 
 const UDP_PORT = 8082;
 
@@ -18,8 +19,14 @@ const log = bunyan.createLogger({ name: "BackendAPI" });
 */
 de1Routes.route('/verify').get(function(req, res) {
 
-    let domain = req.query.domain;
+    let domains = req.body.domains;
     let proxy = req.query.proxyID;
+
+    let allDomainsSubStr1 = "&&& "
+    let allDomainsSubStr2 = allDomainsSubStr1.concat(domains.join(" "));
+    let allDomains = allDomainsSubStr2.concat(" &&&");
+
+    log.info("All Domains:", allDomains);
 
     // TODO: Check database to see if domain is already blacklisted or whitelisted before sending request
 
@@ -34,11 +41,15 @@ de1Routes.route('/verify').get(function(req, res) {
         log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
     });
 
-    // Switch to DE1 values
     let de1IP = "50.98.133.70";
     let de1Port = 41234;
 
-    socket.send(domain, 0, domain.length, de1Port, de1IP, function(err) {
+    let de1Timeout = setTimeout(function() {
+        socket.close();
+        res.status(408).send("Timeout Error");
+    }, 5000);
+
+    socket.send(allDomains, 0, allDomains.length, de1Port, de1IP, function(err) {
         if (err)
             throw err;
         log.info('UDP message sent to ' + de1IP + ':' + de1Port);
@@ -49,18 +60,33 @@ de1Routes.route('/verify').get(function(req, res) {
         log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
         socket.close();
 
-        // DE1 response in the format: "domain.com 1"
-        domainStatus = (msg.toString().split(" "));
+        // DE1 response in the format: "domain.com1"
+        let domainStatus = (msg.toString().split(" "));
 
         const response = {
-            domain: domainStatus[0],
-            status: domainStatus[1],
-        }
+            domains: []
+        };
+
+        domainStatus.forEach(domainResponse => {
+            let domainName = domainResponse.substr(0, domainName.length);
+            let domainList = domainResponse.substr(domainName.length - 1);
+
+            const status = {
+                domain: domainName,
+                list: domainList
+            }
+
+            response.domains.push(status);
+        });
+
+        log.info("Response:", response);
+
+        clearTimeout(de1Timeout);
 
         res.status(200).json(response);
-
-        // TODO: blacklist or whitelist domain in DB based on response from de1
     });
+
+    // TODO: blacklist or whitelist domain in DB based on response from de1
 
 });
 
