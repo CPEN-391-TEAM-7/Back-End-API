@@ -1,4 +1,6 @@
 const express = require("express");
+const bunyan = require("bunyan");
+
 const domainRoutes = express.Router();
 
 const Activity = require('../../models/activity.model');

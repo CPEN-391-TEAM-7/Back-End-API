@@ -1,5 +1,6 @@
 const express = require("express");
 const dgram = require("dgram");
+const bunyan = require("bunyan");
 
 const UDP_PORT = 8082;
 
@@ -8,6 +9,8 @@ const de1Routes = express.Router();
 const Activity = require('../../models/activity.model');
 const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
+
+const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
 @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
@@ -23,12 +26,12 @@ de1Routes.route('/verify').get(function(req, res) {
     const socket = dgram.createSocket("udp4");
 
     socket.bind(UDP_PORT, function() {
-        console.log("Server is running UDP on Port: " + UDP_PORT);
+        log.info("Server is running UDP on Port: " + UDP_PORT);
     });
 
     socket.on("listening", () => {
         let addr = socket.address();
-        console.log(`Listening for UDP packets at ${addr.address}:${addr.port}`);
+        log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
     });
 
     // Switch to DE1 values
@@ -38,12 +41,12 @@ de1Routes.route('/verify').get(function(req, res) {
     socket.send(domain, 0, domain.length, de1Port, de1IP, function(err) {
         if (err)
             throw err;
-        console.log('UDP message sent to ' + de1IP + ':' + de1Port);
+        log.info('UDP message sent to ' + de1IP + ':' + de1Port);
     });
 
     socket.on("message", (msg, info) => {
-        console.log(`Data received from client : ${msg}`);
-        console.log(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
+        log.info(`Data received from client : ${msg}`);
+        log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
         socket.close();
 
         // DE1 response in the format: "domain.com 1"
