@@ -68,12 +68,12 @@ de1Routes.route('/verify').get(function(req, res) {
         };
 
         domainStatus.forEach(domainResponse => {
-            let domainName = domainResponse.substr(0, domainName.length);
-            let domainList = domainResponse.substr(domainName.length - 1);
+            let domainName = domainResponse.substr(0, domainName.length - 1);
+            let domainSafe = domainResponse.substr(domainName.length - 1);
 
             const status = {
                 domain: domainName,
-                list: domainList
+                safe: domainSafe
             }
 
             response.domains.push(status);
