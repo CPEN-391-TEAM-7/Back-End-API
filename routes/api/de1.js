@@ -17,10 +17,10 @@ const log = bunyan.createLogger({ name: "BackendAPI" });
 @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
 @desc Verify if a domain is safe
 */
-de1Routes.route('/verify').get(function(req, res) {
+de1Routes.route('/verify/:proxyID').get(function(req, res) {
 
-    let domains = req.body.domains;
-    let proxy = req.query.proxyID;
+    let domains = req.query.domains;
+    let proxy = req.params.proxyID;
 
     let allDomainsSubStr1 = "&&& "
     let allDomainsSubStr2 = allDomainsSubStr1.concat(domains.join(" "));
