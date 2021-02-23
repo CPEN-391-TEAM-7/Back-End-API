@@ -14,127 +14,105 @@ const User = require('../../models/user.model');
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
-@route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
+@route GET /de1/verify?proxyID=<proxyID>&domains=<domainName>
 @desc Verify if a domain is safe
+@param domain: the domain to verify
+@param proxyID: the proxy sending the request
 */
 de1Routes.route('/verify/:proxyID').get(function(req, res) {
 
-    let domains = req.query.domains;
+    let domainName = req.query.domain;
     let proxyID = req.params.proxyID;
 
-    let domainCount = domains.length;
-    let safeDomains = [];
-    let unsafeDomains = [];
-
-    let allDomains = "&&& "
-
-    // TODO: Check database to see if domain is already blacklisted or whitelisted before sending request
-    domains.forEach(domain => {
-        Domain.findOne({ "proxyID": proxyID, "domainName": domain }, (err, domain) => {
-
-            if (err) {
-                res.status(400).send(err);
-
-            } else if (domain) {
-                if (domain.listType === "whitelist" || domain.listType === "safe") {
-                    safeDomains.push(domain);
-
-                } else if (domain.listType === "blacklist" || domain.listType === "unsafe") {
-                    unsafeDomains.push(domain)
-
-                } else {
-                    allDomains = allDomains.concat(domain);
-                }
-            }
-
-        }).catch(err => {
-            res.status(400).send(err);
-        });
-    });
-
-    allDomains = allDomains.concat(" &&&");
-
-    log.info("All Domains:", allDomains);
+    log.info(`Verify ${domain} sent from ${proxyID}`);
 
     const response = {
-        domains: []
+        domain: domainName,
     };
 
-    if (domainCount > (safeDomains.length + unsafeDomains.length)) {
-        const socket = dgram.createSocket("udp4");
+    // Check if a domain object already exists for this domain name and proxyID
+    Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, (err, domain) => {
+        if (err) {
+            log.info("Error:", err);
+            res.status(400).send(err);
 
-        socket.bind(UDP_PORT, function() {
-            log.info("Server is running UDP on Port: " + UDP_PORT);
-        });
+        } else if (domain) {
+            // Mark domain as safe if already whitelisted or safe
+            if (domain.listType === "whitelist" || domain.listType === "safe") {
+                response.safe = 1;
 
-        socket.on("listening", () => {
-            let addr = socket.address();
-            log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
-        });
+                // Mark domain as unsafe if already blacklisted or unsafe
+            } else if (domain.listType === "blacklist" || domain.listType === "unsafe") {
+                response.safe = 0;
 
-        let de1IP = "50.98.133.70";
-        let de1Port = 41234;
+                // Else, send domain to DE1 to verify if it is safe
+            } else {
+                // Create UDP socket
+                const socket = dgram.createSocket("udp4");
 
-        let de1Timeout = setTimeout(function() {
-            socket.close();
-            res.status(408).send("Timeout Error");
-        }, 5000);
+                socket.bind(UDP_PORT, function() {
+                    log.info(`Server is running UDP on Port: ${UDP_PORT}`);
+                });
 
-        socket.send(allDomains, 0, allDomains.length, de1Port, de1IP, function(err) {
-            if (err)
-                throw err;
-            log.info('UDP message sent to ' + de1IP + ':' + de1Port);
-        });
+                socket.on("listening", () => {
+                    let addr = socket.address();
+                    log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
+                });
 
-        socket.on("message", (msg, info) => {
-            log.info(`Data received from client : ${msg}`);
-            log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
-            socket.close();
+                let de1IP = "50.98.133.70";
+                let de1Port = 41234;
 
-            // DE1 response in the format: "domain.com1"
-            let domainStatus = (msg.toString().split(" "));
+                // Close the socket if no response from DE1 after 5 sec
+                let de1Timeout = setTimeout(function() {
+                    socket.close();
+                    log.info("Timeout Erro:");
+                    res.status(408).send("Timeout Error");
+                }, 5000);
 
-            domainStatus.forEach(domainResponse => {
-                let domainName = domainResponse.substr(0, domainName.length - 1);
-                let domainSafe = domainResponse.substr(domainName.length - 1);
+                // Send the domain name to the DE1
+                socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
+                    if (err) {
+                        log.info("Error:", err);
+                        res.status(400).send(err);
+                        throw err;
+                    }
+                    log.info(`UDP message sent to ${de1IP}:${de1Port}`);
+                });
 
-                const status = {
-                    domain: domainName,
-                    safe: domainSafe
-                }
+                // Receive response from the DE1
+                socket.on("message", (msg, info) => {
+                    clearTimeout(de1Timeout);
 
-                response.domains.push(status);
-            });
+                    log.info(`Data received from client : ${msg}`);
+                    log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
+                    socket.close();
 
-            // TODO: blacklist or whitelist domain in DB based on response from de1
-        });
+                    // DE1 response in the format: "domain.com1" needs to be separated
+                    let domainStatus = msg.toString();
+                    let name = domainStatus.substr(0, domainName.length - 1);
+                    let status = domainStatus.substr(domainName.length - 1);
 
-    }
+                    // Check that the DE1 sent the response for the right domain
+                    if (name === domainName) {
+                        response.safe = status;
+                    } else {
+                        log.info("Responses from DE1 out of order");
+                        res.status(400).send("DE1 responses out of order");
+                    }
+                });
+            }
 
-    safeDomains.forEach(safeDomain => {
-        const status = {
-            domain: safeDomain,
-            safe: 1
+            log.info("Response:", response);
+
+            res.status(200).json(response);
         }
 
-        response.domains.push(status);
+    }).catch(err => {
+        log.info("Error:", err);
+        res.status(400).send(err);
     });
 
-    unsafeDomains.forEach(unsafeDomain => {
-        const status = {
-            domain: unsafeDomain,
-            safe: 0
-        }
-
-        response.domains.push(status);
-    });
-
-    log.info("Response:", response);
-
-    clearTimeout(de1Timeout);
-
-    res.status(200).json(response);
-
+    // TODO: blacklist or whitelist domain in DB based on response from de1
 });
 
 module.exports = de1Routes;

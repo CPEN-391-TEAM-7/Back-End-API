@@ -34,6 +34,16 @@ npm ci
 
 ## Endpoints
 
+#### Verify if a domain is safe (used by Proxy Server):
+`GET /de1/verify/:proxyID?domain=<domainName>`
+
+```
+{    
+    domain: String,
+    safe: Number,   // 1 for safe, 0 for unsafe
+}
+```
+
 #### Get a user's blacklist:
 `GET /domain/blacklist?userId=<userID>`
 
