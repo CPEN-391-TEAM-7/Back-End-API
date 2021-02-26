@@ -26,9 +26,10 @@ de1Routes.route('/verify/:proxyID').get(function(req, res) {
 
     log.info(`Verify ${domain} sent from ${proxyID}`);
 
-    const response = {
-        domain: domainName,
-    };
+    const response = {};
+
+    let newDomain = false;
+    let updateDomain = false;
 
     // Check if a domain object already exists for this domain name and proxyID
     Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, (err, domain) => {
@@ -39,71 +40,58 @@ de1Routes.route('/verify/:proxyID').get(function(req, res) {
         } else if (domain) {
             // Mark domain as safe if already whitelisted or safe
             if (domain.listType === "whitelist" || domain.listType === "safe") {
+                response.domain = domainName;
                 response.safe = 1;
 
                 // Mark domain as unsafe if already blacklisted or unsafe
             } else if (domain.listType === "blacklist" || domain.listType === "unsafe") {
+                response.domain = domainName;
                 response.safe = 0;
 
                 // Else, send domain to DE1 to verify if it is safe
             } else {
-                // Create UDP socket
-                const socket = dgram.createSocket("udp4");
+                // Flag that domain needs to be updated in DB
+                updateDomain = true;
 
-                socket.bind(UDP_PORT, function() {
-                    log.info(`Server is running UDP on Port: ${UDP_PORT}`);
-                });
+                // DE1 response in the format: "domain.com1" needs to be separated
+                let domainStatus = this.getDomainStatus(domainName);
 
-                socket.on("listening", () => {
-                    let addr = socket.address();
-                    log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
-                });
-
-                let de1IP = "50.98.133.70";
-                let de1Port = 41234;
-
-                // Close the socket if no response from DE1 after 5 sec
-                let de1Timeout = setTimeout(function() {
-                    socket.close();
-                    log.info("Timeout Erro:");
-                    res.status(408).send("Timeout Error");
-                }, 5000);
-
-                // Send the domain name to the DE1
-                socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
-                    if (err) {
-                        log.info("Error:", err);
-                        res.status(400).send(err);
-                        throw err;
-                    }
-                    log.info(`UDP message sent to ${de1IP}:${de1Port}`);
-                });
-
-                // Receive response from the DE1
-                socket.on("message", (msg, info) => {
-                    clearTimeout(de1Timeout);
-
-                    log.info(`Data received from client : ${msg}`);
-                    log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
-                    socket.close();
-
-                    // DE1 response in the format: "domain.com1" needs to be separated
-                    let domainStatus = msg.toString();
-                    let name = domainStatus.substr(0, domainName.length - 1);
-                    let status = domainStatus.substr(domainName.length - 1);
-
-                    // Check that the DE1 sent the response for the right domain
-                    if (name === domainName) {
-                        response.safe = status;
-                    } else {
-                        log.info("Responses from DE1 out of order");
-                        res.status(400).send("DE1 responses out of order");
-                    }
-                });
+                if (domainStatus.length > 0) {
+                    response.domain = domainStatus.substr(0, domainName.length - 1);
+                    response.safe = domainStatus.substr(domainName.length - 1);
+                } else {
+                    response.domain = "";
+                    response.safe = "";
+                }
             }
+            // Else, send domain to DE1 to verify if it is safe
+        } else {
+            // Flag that new domain needs to be created in DB
+            newDomain = true;
 
-            log.info("Response:", response);
+            // DE1 response in the format: "domain.com1" needs to be separated
+            let domainStatus = this.getDomainStatus(domainName);
 
+            if (domainStatus.length > 0) {
+                response.domain = domainStatus.substr(0, domainName.length - 1);
+                response.safe = domainStatus.substr(domainName.length - 1);
+            } else {
+                response.domain = "";
+                response.safe = "";
+            }
+        }
+
+        log.info("Response:", response);
+
+        if (response.domain.length < 1 || response.safe.length < 1) {
+            res.status(408).send("Timeout Error");
+
+            // Check that the DE1 sent the response for the right domain
+        } else if (response.domain !== domainName) {
+            log.info("Responses from DE1 out of order");
+            res.status(400).send("DE1 responses out of order");
+
+        } else {
             res.status(200).json(response);
         }
 
@@ -114,5 +102,54 @@ de1Routes.route('/verify/:proxyID').get(function(req, res) {
 
     // TODO: blacklist or whitelist domain in DB based on response from de1
 });
+
+function getDomainStatus(domainName) {
+    let defaultReturn = "";
+
+    // Create UDP socket
+    const socket = dgram.createSocket("udp4");
+
+    socket.bind(UDP_PORT, function() {
+        log.info(`Server is running UDP on Port: ${UDP_PORT}`);
+    });
+
+    socket.on("listening", () => {
+        let addr = socket.address();
+        log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
+    });
+
+    let de1IP = "50.98.133.70";
+    let de1Port = 41234;
+
+    // Close the socket if no response from DE1 after 5 sec
+    let de1Timeout = setTimeout(function() {
+        socket.close();
+        log.info("Timeout Error");
+        return defaultReturn;
+    }, 5000);
+
+    // Send the domain name to the DE1
+    socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
+        if (err) {
+            log.info("Error:", err);
+            res.status(400).send(err);
+            throw err;
+        }
+        log.info(`UDP message sent to ${de1IP}:${de1Port}`);
+    });
+
+    // Receive response from the DE1
+    socket.on("message", (msg, info) => {
+        clearTimeout(de1Timeout);
+
+        log.info(`Data received from client : ${msg}`);
+        log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
+        socket.close();
+
+        let domainStatus = msg.toString();
+
+        return domainStatus;
+    });
+}
 
 module.exports = de1Routes;
