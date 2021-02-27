@@ -1,19 +1,32 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-let Domain = new Schema({
+// This model will always be created by the proxy
+
+const Domain = new Schema({
     domainID: {
-        type: Schema.Types.ObjectId
+        // a randomly generated ID by Proxy
+        type: String,
+        unique: true,
+        required: true,
     },
     proxyID: {
-        type: Schema.Types.ObjectId
+        type: String,
     },
     domainName: {
-        type: String
+        // a URL
+        type: String,
     },
     listType: {
-        type: String
-    }
+        // BlackList, WhiteList, Safe, Unsafe, undefined
+        type: String,
+        enum: ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"],
+        default: "Undefined",
+    },
+    num_of_accesses: {
+        // Number of accesses to this domain
+        type: Number,
+    },
 });
 
-module.exports = mongoose.model('Domain', Domain);
+module.exports = mongoose.model("Domain", Domain);
