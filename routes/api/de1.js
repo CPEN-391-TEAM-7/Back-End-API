@@ -25,7 +25,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
     let domainName = req.query.domain;
     let proxyID = req.params.proxyID;
 
-    console.log(`Verify ${domainName} sent from ${proxyID}`);
+    log.info(`Verify ${domainName} sent from ${proxyID}`);
 
     const response = {};
 
@@ -36,7 +36,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
         let domainListType = "Undefined";
 
         if (err) {
-            console.log("Error:", err);
+            log.info("Error:", err);
             res.status(400).send(err);
 
         } else if (domain) {
@@ -84,15 +84,16 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
             }
         }
 
-        console.log("Response:", response);
+        log.info("Response:", response);
 
         // Send timeout error if no response from DE1
         if (response.domain.length < 1 || response.safe.length < 1) {
+            log.info("Timeout Error");
             res.status(408).send("Timeout Error");
 
             // Check that the DE1 sent the response for the right domain
         } else if (response.domain !== domainName) {
-            console.log("Responses from DE1 out of order");
+            log.info("Responses from DE1 out of order");
             res.status(400).send("DE1 responses out of order");
 
         } else {
@@ -113,7 +114,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
         }
 
     }).catch(err => {
-        console.log("Error:", err);
+        log.info("Error:", err);
         res.status(400).send(err);
     });
 });
@@ -124,14 +125,17 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
  * @return The formatted reponse message
  */
 async function getDomainStatus(domainName) {
-    const domainStatus = await verfiyDomain(domainName);
+    log.info(`getDomainStatus(${domainName})`);
+
+    let domainStatus = await verfiyDomain(domainName);
 
     const domainResponse = {};
 
     if (domainStatus) {
         // DE1 response in the format: "domain.com1" needs to be separated
-        domainResponse.domain = domainStatus.substr(0, domainName.length - 1);
-        domainResponse.safe = domainStatus.substr(domainName.length - 1);
+        domainStatus = domainStatus.trim(); // trim white space and new lines
+        domainResponse.domain = domainStatus.substr(0, domainStatus.length - 1);
+        domainResponse.safe = domainStatus.substr(domainStatus.length - 1);
     } else {
         // For no response from DE1 set response to empty
         domainResponse.domain = "";
@@ -139,10 +143,10 @@ async function getDomainStatus(domainName) {
     }
 
     // Set response to return list type for activity logging and updating/creating domain objects
-    if (domainResponse.safe === 1) {
+    if (domainResponse.safe === "1") {
         domainResponse.listType = "Safe";
 
-    } else if (domainResponse.safe === 0) {
+    } else if (domainResponse.safe === "0") {
         domainResponse.listType = "Malicious";
     }
 
@@ -155,36 +159,42 @@ async function getDomainStatus(domainName) {
  * @return The message from the DE1, a domain followed by a 1 for safe or 0 for malicous, eg. "google.com1"
  */
 function verfiyDomain(domainName) {
+    log.info(`verfiyDomain(${domainName})`);
+
     return new Promise((resolve, reject) => {
 
         // Create UDP socket listening on port 8082
         const socket = dgram.createSocket("udp4");
 
         socket.bind(UDP_PORT, function() {
-            console.log(`Server is running UDP on Port: ${UDP_PORT}`);
+            log.info(`Server is running UDP on Port: ${UDP_PORT}`);
         });
 
         socket.on("listening", () => {
             let addr = socket.address();
-            console.log(`Listening for UDP packets at ${addr.address}:${addr.port}`);
+            log.info(`Listening for UDP packets at ${addr.address}:${addr.port}`);
         });
 
         const de1IP = "50.98.133.70";
         const de1Port = 41234;
 
+        // For testing locally
+        // const de1IP = "127.0.0.1";
+        // const de1Port = 2399;
+
         // Send the domain name to the DE1
         socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
             if (err) {
-                console.log("Error sending DE1 message:", err);
+                log.info("Error sending DE1 message:", err);
                 resolve(null);
             }
-            console.log(`UDP message sent to ${de1IP}:${de1Port}`);
+            log.info(`UDP message sent to ${de1IP}:${de1Port}`);
         });
 
         // Close the socket if no response from DE1 after 3 sec
         let de1Timeout = setTimeout(function() {
             socket.close();
-            console.log("Timeout Error");
+            log.info("Timeout Error");
             resolve(null);
         }, 3000);
 
@@ -192,8 +202,8 @@ function verfiyDomain(domainName) {
         socket.on("message", (msg, info) => {
             clearTimeout(de1Timeout); // Cancel 3 sec timer
 
-            console.log(`Data received from client : ${msg}`);
-            console.log(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
+            log.info(`Data received from client : ${msg}`);
+            log.info(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
             socket.close();
 
             let domainStatus = msg.toString();
@@ -210,6 +220,7 @@ function verfiyDomain(domainName) {
  * @return The ID of the domain object
  */
 async function createDomain(domainName, listType, proxy) {
+    log.info(`createDomain(${domainName}, ${listType}, ${proxy})`);
     const id = uuidv4();
 
     const newDomain = new Domain({
@@ -223,7 +234,7 @@ async function createDomain(domainName, listType, proxy) {
     await newDomain
         .save()
         .catch((err) => {
-            console.log("Error creating domain:", err);
+            log.info("Error creating domain:", err);
         });
 
     return id;
@@ -237,6 +248,7 @@ async function createDomain(domainName, listType, proxy) {
  * @param proxy: the proxy's ID
  */
 async function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType) {
+    log.info(`updateListTypeAndIncrement(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
     const filter = {
         domainID: domainID,
         proxyID: proxy,
@@ -252,7 +264,7 @@ async function updateListTypeAndIncrement(domainID, domainName, proxy, domainLis
 
     Domain.findOneAndUpdate(filter, update)
         .catch((err) => {
-            console.log("Error updating domain:", err);
+            log.info("Error updating domain:", err);
         });
 }
 
@@ -264,6 +276,7 @@ async function updateListTypeAndIncrement(domainID, domainName, proxy, domainLis
  * @param proxy: the proxy's ID
  */
 async function createActivityRecord(domainID, domainName, proxy, domainListType) {
+    log.info(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
     const id = uuidv4();
     const now = Date.now();
 
@@ -279,7 +292,7 @@ async function createActivityRecord(domainID, domainName, proxy, domainListType)
     newActivity
         .save()
         .catch((err) => {
-            console.log("Error creating activity record:", err);
+            log.info("Error creating activity record:", err);
         });
 }
 
