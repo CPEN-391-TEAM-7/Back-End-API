@@ -3,19 +3,25 @@ const Schema = mongoose.Schema;
 
 let Activity = new Schema({
     activityID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     domainID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     domainName: {
         type: String
     },
-    userID: {
-        type: Schema.Types.ObjectId
+    proxyID: {
+        type: String
     },
     timestamp: {
         type: Date
+    },
+    status: {
+        // BlackList, WhiteList, Safe, Unsafe, Undefined
+        type: String,
+        enum: ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"],
+        default: "Undefined",
     }
 });
 

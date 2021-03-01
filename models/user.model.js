@@ -3,13 +3,13 @@ const Schema = mongoose.Schema;
 
 let User = new Schema({
     userID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     name: {
         type: String
     },
     proxyID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     googleAuthToken: {
         type: String
