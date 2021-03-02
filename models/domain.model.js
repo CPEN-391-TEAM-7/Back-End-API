@@ -20,7 +20,7 @@ const Domain = new Schema({
     listType: {
         // BlackList, WhiteList, Safe, Unsafe, undefined
         type: String,
-        enum: ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"],
+        enum: ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
         default: "Undefined",
     },
     num_of_accesses: {
