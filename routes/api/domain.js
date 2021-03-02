@@ -1,5 +1,6 @@
 const express = require("express");
 const bunyan = require("bunyan");
+var _ = require("lodash");
 
 const domainRoutes = express.Router();
 
@@ -19,6 +20,7 @@ domainRoutes.route("/").get((req, res) => {
 });
 
 /**
+ * This is for testing purposes only. For now, might as well keep it.
  * @route POST /domain/add
  * @desc for develppment purposes only.
  */
@@ -56,16 +58,52 @@ domainRoutes.post("/add", (req, res) => {
  * // Find the proxyID by the userID
  */
 
-domainRoutes.route("/update/:id").put((req, res) => {
-    const body = req.body;
+domainRoutes.route("/update").put(async (req, res) => {
+    const _userID = req.body.userID;
+    const _listType = req.body.listType;
+    const _domainName = req.body.domainName;
 
-    const user = User.find({ userID: req.params.id });
-
-    Domain.find({ proxyID: user.proxyID, domainName: body.domainName }).then(
-        (domain) => {
-            domain.listType = body.listType;
-        }
+    const valid_listType = _.includes(
+        ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
+        _listType
     );
+
+    if (!valid_listType) {
+        console.log("It's not a valid listType");
+        res.status("400").json({
+            status: `400`,
+            message: `${_listType} is not a valid listType`,
+        });
+    }
+
+    await User.findOne({ userID: _userID }, async (err, _user) => {
+        let _proxyID;
+
+        if (err) {
+            log.error("Error: " + err);
+            res.status("400").send(err);
+            return;
+        } else if (_user) {
+            _proxyID = _user.proxyID;
+            console.log("I got the user");
+
+            const findThis = { proxyID: _proxyID, domainName: _domainName };
+
+            let newobject = await Domain.findOneAndUpdate(
+                findThis,
+                {
+                    listType: _listType,
+                },
+                { new: true, rawResult: true }
+            ).orFail();
+
+            res.json(newobject);
+        } else {
+            console.log("I didn't get the user");
+            log.error("No such user exists");
+            res.status("400").send("This user doesn't exist.");
+        }
+    });
 });
 
 /**

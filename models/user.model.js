@@ -1,19 +1,24 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 let User = new Schema({
-    userID: { // Probably generated on the mobileapp
-        type: Schema.Types.ObjectId
+    userID: {
+        // Probably generated on the mobileapp
+        type: String,
+        required: true,
+        unique: true
     },
     name: {
-        type: String
+        type: String,
+        required: true,
     },
     proxyID: {
-        type: Schema.Types.ObjectId
+        type: String,
+        required: true,
     },
     googleAuthToken: {
-        type: String
-    }
+        type: String,
+    },
 });
 
-module.exports = mongoose.model('User', User);
+module.exports = mongoose.model("User", User);
