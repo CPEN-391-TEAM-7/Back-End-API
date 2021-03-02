@@ -17,9 +17,8 @@ const de1 = require("./routes/api/de1");
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/Securify", {
-    useNewUrlParser: true,
-});
+mongoose.connect("mongodb://127.0.0.1:27017/Securify", { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 const connection = mongoose.connection;
 
 connection.once("open", function () {

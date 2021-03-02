@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let Proxy = new Schema({
     proxyID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     ipAddress: {
         type: String
@@ -12,7 +12,7 @@ let Proxy = new Schema({
         type: Number
     },
     userID: {
-        type: Schema.Types.ObjectId
+        type: String
     },
 });
 
