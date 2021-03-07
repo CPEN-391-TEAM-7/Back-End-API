@@ -44,6 +44,32 @@ npm ci
 }
 ```
 
+#### Get recent activity:
+`GET /activity/recent/:userID`
+Request Body:
+startDate: datetime to start querying backwards from (inclusive)
+endDate?: (optional) datetime to query forwards from (inclusive)
+limit?: (optional) how many domain requests to return
+listTypes?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)
+
+```
+{
+    activities: [
+        {
+            "status": String,
+            "activityID": String,
+            "domainID": String,
+            "domainName": String,
+            "proxyID": String,
+            "timestamp": Datetime,
+        },
+        ...
+    ],
+    "lastEndDate": Datetime, // the timestamp of the oldest activity
+    "count": Number // total activities returned
+}
+```
+
 #### Get a user's blacklist:
 `GET /domain/blacklist?userId=<userID>`
 
@@ -107,42 +133,3 @@ npm ci
 
 #### Blacklist a domain for a user:
 `PUT /domain?userId=<userID>&listType=whitelist`
-
-#### Get a user's activity between two datetimes:
-`GET /activity?userId=<userID>&start=<startDateTime>&end=<endDateTime>`
-
-```
-{
-    activity: [
-        {
-            domainID: String,
-            domainName: String,
-            timestamp: DateTime,
-        },
-        {
-            domainID: String,
-            domainName: String,
-            timestamp: DateTime,
-        },
-        {
-            domainID: String,
-            domainName: String,
-            timestamp: DateTime,
-        },
-    ]
-}
-```
-
-#### Add a new activity to a user's activity list:
-`POST /activity?userId=<userID>&domainName=<domainName>`
-
-#### Get a user's data:
-`GET /user?userId=<userID>`
-
-```
-{
-    userID: String,
-    name: String,
-    googleAuthToken: String, 
-}
-```
