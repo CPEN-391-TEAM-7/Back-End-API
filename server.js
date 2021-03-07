@@ -22,7 +22,7 @@ mongoose.set('useFindAndModify', false);
 const connection = mongoose.connection;
 
 connection.once("open", function() {
-    log.info("MongoDB database connection established successfully");
+    console.log("MongoDB database connection established successfully");
 });
 
 app.use("/user", user);
@@ -31,5 +31,5 @@ app.use("/activity", activity);
 app.use("/de1", de1);
 
 app.listen(PORT, function() {
-    log.info("Server is running on Port: " + PORT);
+    console.log("Server is running on Port: " + PORT);
 });

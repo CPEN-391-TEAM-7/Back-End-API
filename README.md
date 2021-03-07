@@ -34,7 +34,7 @@ npm ci
 
 ## Endpoints
 
-#### Verify if a domain is safe (used by Proxy Server):
+### Verify if a domain is safe (used by Proxy Server):
 `GET /de1/verify/:proxyID?domain=<domainName>`
 
 ```
@@ -44,7 +44,7 @@ npm ci
 }
 ```
 
-#### Get recent activity:
+### Get recent activity:
 `GET /activity/recent/:userID`
 
 Request Body:
@@ -75,7 +75,7 @@ Request Body:
 }
 ```
 
-#### Get a user's blacklist:
+### Get a user's blacklist:
 `GET /domain/blacklist?userId=<userID>`
 
 ```
@@ -97,7 +97,7 @@ Request Body:
 }
 ```
 
-#### Get a user's whitelist:
+### Get a user's whitelist:
 `GET /domain/whitelist?userId=<userID>`
 
 ```
@@ -119,7 +119,7 @@ Request Body:
 }
 ```
 
-#### Get a domain's status:
+### Get a domain's status:
 `GET /domain?userId=<userID>&domainName=<domainName>`
 
 ```
@@ -130,11 +130,11 @@ Request Body:
 }
 ```
 
-#### Add a new domain to a user's list of domains:
+### Add a new domain to a user's list of domains:
 `POST /domain?userId=<userID>&domainName=<domainName>&listType=<listType>`
 
-#### Blacklist a domain for a user:
+### Blacklist a domain for a user:
 `PUT /domain?userId=<userID>&listType=blacklist`
 
-#### Blacklist a domain for a user:
+### Blacklist a domain for a user:
 `PUT /domain?userId=<userID>&listType=whitelist`

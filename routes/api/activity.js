@@ -30,32 +30,32 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
     const limit = req.body.limit ? req.body.limit : null;
     const listTypes = req.body.listTypes ? req.body.listTypes : null;
 
-    log.info(`GET /activity/recent/${userID}`);
+    console.log(`GET /activity/recent/${userID}`);
 
     const userFilter = {
         userID: userID
     };
 
     if (endDate && endDate > startDate) {
-        log.info("Error, startDate must be after the endDate");
+        console.log("Error, startDate must be after the endDate");
         res.status(400).send("Error, startDate must be after the endDate");
         return;
     }
 
     if (limit < 1) {
-        log.info(("Error, limit must be at least 1"));
+        console.log(("Error, limit must be at least 1"));
         res.status(400).send("Error, limit must be at least 1");
         return;
     }
 
     User.findOne(userFilter, function(err, user) {
         if (err) {
-            log.info("Error:", err);
+            console.log("Error:", err);
             res.status(400).send(err);
             return;
 
         } else if (!user) {
-            log.info("Error, user not found:", err);
+            console.log("Error, user not found:", err);
             res.status(404).send(err);
             return;
 
@@ -86,7 +86,7 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
 
                 for (let i = 0; i < listTypes.length; i++) {
                     if (!validListTypes.includes(listTypes[i])) {
-                        log.info(`Error, invalid listType: ${listTypes[i]}`);
+                        console.log(`Error, invalid listType: ${listTypes[i]}`);
                         res.status(400).send(`Error, invalid listType: ${listTypes[i]}`);
                         return;
                     }
@@ -112,7 +112,7 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
                     response.lastEndDate = activities[activities.length - 1].timestamp;
                     response.count = activities.length;
 
-                    log.info("Sending activities");
+                    console.log("Sending activities");
                     res.status(200).send(response);
                 });
 
@@ -125,14 +125,14 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
                     response.lastEndDate = activities[activities.length - 1].timestamp;
                     response.count = activities.length;
 
-                    log.info("Sending activities");
+                    console.log("Sending activities");
                     res.status(200).send(response);
                 });
             }
         }
 
     }).catch(err => {
-        log.info("Error:", err);
+        console.log("Error:", err);
         res.status(400).send(err);
         return;
     });
