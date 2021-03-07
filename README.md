@@ -1,38 +1,50 @@
 # Backend
 
 ## Steps for local use (Mac)
+
 ### Setup
+
 Inside the cloned directory run:
+
 ```
 npm ci
 ```
 
 Then:
+
 ```
 brew install mongodb/brew/mongodb-community
 ```
+
 Next:
+
 ```
 mongo
 ```
 
 Inside the mongo interface:
+
 ```
 use Securify
 ```
 
 ### Use
+
 Inside the cloned directory run:
+
 ```
 npm start
 ```
 
 If there were any new libraries installed you my need to run
+
 ```
 npm ci
 ```
 
-## Endpoints
+# Endpoints
+
+### Get a user's blacklist:
 
 #### Verify if a domain is safe (used by Proxy Server):
 `GET /de1/verify/:proxyID?domain=<domainName>`
@@ -96,8 +108,9 @@ Request Body:
     ],
 }
 ```
+---
+### Get a user's whitelist:
 
-#### Get a user's whitelist:
 `GET /domain/whitelist?userId=<userID>`
 
 ```
@@ -118,8 +131,9 @@ Request Body:
     ],
 }
 ```
+---
+### Get a domain's status:
 
-#### Get a domain's status:
 `GET /domain?userId=<userID>&domainName=<domainName>`
 
 ```
@@ -129,12 +143,16 @@ Request Body:
     listType: String,
 }
 ```
+---
+### Add a new domain to a user's list of domains:
 
-#### Add a new domain to a user's list of domains:
 `POST /domain?userId=<userID>&domainName=<domainName>&listType=<listType>`
 
 #### Blacklist a domain for a user:
+
 `PUT /domain?userId=<userID>&listType=blacklist`
 
 #### Blacklist a domain for a user:
+
 `PUT /domain?userId=<userID>&listType=whitelist`
+
