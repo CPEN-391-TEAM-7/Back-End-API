@@ -14,11 +14,14 @@ const validListTypes = ["WhiteList", "BlackList", "Safe", "Malicious", "Undefine
 /* 
  * @route GET /activity/recent/:userID
  * @desc Get the most recent domain requests
- * @param userID: the admin user sending the request
- * @body startDate: datetime to start querying backwards from (inclusive)
- * @body endDate?: (optional) datetime to query forwards from (inclusive)
- * @body limit?: (optional) how many domain requests to return
- * @body listTypes?: (optional) filter domain requests by list types
+ * @param userID String: the admin user sending the request
+ * @body startDate Date: datetime to start querying backwards from (inclusive)
+ * @body endDate Date?: (optional) datetime to query forwards from (inclusive)
+ * @body limit Integer?: (optional) how many domain requests to return
+ * @body listTypes Array[String]?: (optional) filter domain requests by list types
+ * @return activities Array: an arrary of domain request logs
+ * @return lastEndDate Date: the timestamp of the oldest domain request
+ * @return count Integer:  the number of domain requests
  */
 activityRoutes.route('/recent/:userID').get(function(req, res) {
     const userID = req.params.userID;

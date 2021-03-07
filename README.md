@@ -49,13 +49,13 @@ npm ci
 
 Request Body:
 
-`startDate: datetime to start querying backwards from (inclusive)`
+`startDate Datetime: datetime to start querying backwards from (inclusive)`
 
-`endDate?: (optional) datetime to query forwards from (inclusive)`
+`endDate Datetime?: (optional) datetime to query forwards from (inclusive)`
 
-`limit?: (optional) how many domain requests to return`
+`limit Integer?: (optional) how many domain requests to return`
 
-`listTypes?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
+`listTypes Array[String]?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
 
 ```
 {
@@ -71,7 +71,7 @@ Request Body:
         ...
     ],
     "lastEndDate": Datetime, // the timestamp of the oldest activity
-    "count": Number // total activities returned
+    "count": Integer // total activities returned
 }
 ```
 
