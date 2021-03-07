@@ -15,17 +15,19 @@ const User = require('../../models/user.model');
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
- * @route GET /de1/verify?proxyID=<proxyID>&domains=<domainName>
- * @desc Verify if a domain is safe
- * @param domain: the domain to verify
- * @param proxyID: the proxy sending the request
+ * @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
+ * @desc Verify if a domain is safe, and updates domain in the DB if necessary
+ * @param proxyID String: the proxy sending the request
+ * @query domain String: the domain to verify
+ * @return domain String: the name of the domain
+ * @return safe Integer: a 1 for safe or a 0 for a malicious domain
  */
 de1Routes.get('/verify/:proxyID', async function(req, res) {
 
     let domainName = req.query.domain;
     let proxyID = req.params.proxyID;
 
-    log.info(`Verify ${domainName} sent from ${proxyID}`);
+    log.info(`GET /de1/verify?${proxyID}=<proxyID>&domain=${domainName}`);
 
     const response = {};
 
