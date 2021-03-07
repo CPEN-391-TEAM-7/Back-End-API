@@ -9,6 +9,8 @@ const User = require('../../models/user.model');
 
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
+const validListTypes = ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"];
+
 /* 
  * @route GET /activity/recent/:userID
  * @desc Get the most recent domain requests
@@ -25,18 +27,34 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
     const limit = req.body.limit ? req.body.limit : null;
     const listTypes = req.body.listTypes ? req.body.listTypes : null;
 
+    log.info(`GET /activity/recent/${userID}`);
+
     const userFilter = {
         userID: userID
     };
+
+    if (endDate && endDate > startDate) {
+        log.info("Error, startDate must be after the endDate");
+        res.status(400).send("Error, startDate must be after the endDate");
+        return;
+    }
+
+    if (limit < 1) {
+        log.info(("Error, limit must be at least 1"));
+        res.status(400).send("Error, limit must be at least 1");
+        return;
+    }
 
     User.findOne(userFilter, function(err, user) {
         if (err) {
             log.info("Error:", err);
             res.status(400).send(err);
+            return;
 
         } else if (!user) {
             log.info("Error, user not found:", err);
             res.status(404).send(err);
+            return;
 
         } else {
             const proxyID = user.proxyID;
@@ -61,14 +79,26 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
             activityFilter.timestamp = dateFilter;
 
             if (listTypes) {
-                console.log(listTypes);
                 listTypeFilter = [];
-                listTypes.forEach(list => {
-                    listTypeFilter.push({ status: list })
-                    console.log(listTypeFilter);
-                });
+
+                for (let i = 0; i < listTypes.length; i++) {
+                    if (!validListTypes.includes(listTypes[i])) {
+                        log.info(`Error, invalid listType: ${listTypes[i]}`);
+                        res.status(400).send(`Error, invalid listType: ${listTypes[i]}`);
+                        return;
+                    }
+
+                    console.log('here');
+
+                    listTypeFilter.push({ status: listTypes[i] })
+                }
+
+                console.log('here1');
+
                 activityFilter.$or = listTypeFilter;
             }
+
+            console.log('here2');
 
             if (limit) {
                 Activity.find(activityFilter).sort({ timestamp: 'desc' }).limit(limit).exec((err, activities) => {
@@ -79,6 +109,7 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
                     response.lastEndDate = activities[activities.length - 1].timestamp;
                     response.count = activities.length;
 
+                    log.info("Sending activities");
                     res.status(200).send(response);
                 });
 
@@ -91,6 +122,7 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
                     response.lastEndDate = activities[activities.length - 1].timestamp;
                     response.count = activities.length;
 
+                    log.info("Sending activities");
                     res.status(200).send(response);
                 });
             }
@@ -99,6 +131,7 @@ activityRoutes.route('/recent/:userID').get(function(req, res) {
     }).catch(err => {
         log.info("Error:", err);
         res.status(400).send(err);
+        return;
     });
 });
 

@@ -10,10 +10,7 @@ let Proxy = new Schema({
     },
     port: {
         type: Number
-    },
-    userID: {
-        type: String
-    },
+    }
 });
 
 module.exports = mongoose.model('Proxy', Proxy);
