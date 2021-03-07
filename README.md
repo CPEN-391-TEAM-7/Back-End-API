@@ -46,11 +46,16 @@ npm ci
 
 #### Get recent activity:
 `GET /activity/recent/:userID`
+
 Request Body:
-startDate: datetime to start querying backwards from (inclusive)
-endDate?: (optional) datetime to query forwards from (inclusive)
-limit?: (optional) how many domain requests to return
-listTypes?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)
+
+`startDate: datetime to start querying backwards from (inclusive)`
+
+`endDate?: (optional) datetime to query forwards from (inclusive)`
+
+`limit?: (optional) how many domain requests to return`
+
+`listTypes?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
 
 ```
 {
