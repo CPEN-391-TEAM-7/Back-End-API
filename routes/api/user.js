@@ -1,6 +1,7 @@
 const express = require("express");
 const bunyan = require("bunyan");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const userRoutes = express.Router();
 
@@ -26,18 +27,16 @@ userRoutes.route("/").get(function (req, res) {
  *      userID:
  *      name:
  *      proxyID:
- *      googleAuthToken:
  * }
  */
 
-userRoutes.route("/add").post((req, res) => {
+userRoutes.route("/register").post((req, res) => {
     const body = req.body;
 
     const newUser = new User({
         userID: body.userID,
         name: body.name,
-        proxyID: body.proxyID,
-        googleAuthToken: body.googleAuthToken,
+        proxyID: uuidv4(),
     });
 
     newUser.save().then((result) => {
