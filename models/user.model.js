@@ -16,9 +16,6 @@ let User = new Schema({
         type: String,
         required: true,
     },
-    googleAuthToken: {
-        type: String,
-    },
 });
 
 module.exports = mongoose.model("User", User);
