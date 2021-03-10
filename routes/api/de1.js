@@ -198,7 +198,7 @@ function verfiyDomain(domainName) {
             socket.close();
             console.log("Timeout Error");
             resolve(null);
-        }, 3000);
+        }, 10000);
 
         // Receive response from the DE1
         socket.on("message", (msg, info) => {

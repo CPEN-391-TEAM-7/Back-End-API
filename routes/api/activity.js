@@ -7,8 +7,6 @@ const Activity = require('../../models/activity.model');
 const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
 
-const log = bunyan.createLogger({ name: "BackendAPI" });
-
 const validListTypes = ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"];
 
 /* 
