@@ -196,7 +196,7 @@ function verfiyDomain(domainName) {
         // Close the socket if no response from DE1 after 3 sec
         let de1Timeout = setTimeout(function() {
             socket.close();
-            console.log("Timeout Error");
+            console.log("Cannot Reach DE1-SoC");
             resolve(null);
         }, 10000);
 

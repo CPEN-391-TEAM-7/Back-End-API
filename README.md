@@ -46,7 +46,7 @@ npm ci
 
 ### Get a user's blacklist:
 
-#### Verify if a domain is safe (used by Proxy Server):
+### Verify if a domain is safe (used by Proxy Server):
 `GET /de1/verify/:proxyID?domain=<domainName>`
 
 ```
@@ -55,8 +55,8 @@ npm ci
     safe: Number,   // 1 for safe, 0 for unsafe
 }
 ```
-
-#### Get recent activity:
+---
+### Get recent activity:
 `GET /activity/recent/:userID`
 
 Request Body:
@@ -86,8 +86,8 @@ Request Body:
     "count": Integer // total activities returned
 }
 ```
-
-#### Get a user's blacklist:
+---
+### Get a user's blacklist:
 `GET /domain/blacklist?userId=<userID>`
 
 ```
