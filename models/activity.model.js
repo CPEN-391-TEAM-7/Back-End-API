@@ -17,7 +17,7 @@ let Activity = new Schema({
     timestamp: {
         type: Date
     },
-    status: {
+    listType: {
         // BlackList, WhiteList, Safe, Unsafe, Undefined
         type: String,
         enum: ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"],
