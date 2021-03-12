@@ -14,7 +14,7 @@ const log = bunyan.createLogger({ name: "BackendAPI" });
 @route GET /user/
 @desc Test
 */
-userRoutes.route("/").get(function (req, res) {
+userRoutes.route("/").get(function(req, res) {
     res.status(200).send("Contacted User Endpoint");
 });
 /**
@@ -46,7 +46,7 @@ userRoutes.route("/add").post((req, res) => {
 });
 
 /**
- * @route GET /users/all
+ * @route GET /user/all
  */
 
 userRoutes.route("/all").get((req, res) => {

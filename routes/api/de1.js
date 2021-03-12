@@ -49,12 +49,12 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
             // Mark domain as safe if already whitelisted or safe
             if (domain.listType === "Whitelist" || domain.listType === "Safe") {
                 response.domain = domainName;
-                response.safe = 1;
+                response.safe = "1";
 
                 // Mark domain as unsafe if already blacklisted or unsafe
             } else if (domain.listType === "Blacklist" || domain.listType === "Malicious") {
                 response.domain = domainName;
-                response.safe = 0;
+                response.safe = "0";
 
                 // Else, send domain to DE1 to verify if it is safe
             } else {
@@ -62,7 +62,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
                 // Set the response to proxy based off response from DE1
                 response.domain = domainStatus.domain;
-                response.safe = domainStatus.safe;
+                response.safe = domainStatus.safe = "1";
 
                 // Get the list type for activity logging and domain updating
                 if (domainStatus.listType) {
@@ -78,7 +78,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
             // Set the response to proxy based off response from DE1
             response.domain = domainStatus.domain;
-            response.safe = domainStatus.safe;
+            response.safe = domainStatus.safe = "1";
 
             // Get the list type for activity logging and domain object creating
             if (domainStatus.listType) {
