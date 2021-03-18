@@ -55,6 +55,17 @@ Response:
     safe: Number,   // 1 for safe, 0 for unsafe
 }
 ```
+
+---
+### Log domain request (used by Proxy Server):
+`GET /activity/log/:proxyID`
+
+Request Body:
+
+`listType String: the list the domain belongs to`
+
+`domainName String: the name of the domain being logged`
+
 ---
 ### Get recent domain request activity:
 `GET /activity/recent/:userID`
