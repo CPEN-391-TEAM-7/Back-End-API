@@ -1,13 +1,12 @@
 const express = require("express");
-const bunyan = require("bunyan");
+const { v4: uuidv4 } = require('uuid');
+const de1 = require("./de1");
 
 const activityRoutes = express.Router();
 
 const Activity = require("../../models/activity.model");
 const Domain = require("../../models/domain.model");
 const User = require("../../models/user.model");
-
-const log = bunyan.createLogger({ name: "BackendAPI" });
 
 const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
@@ -396,6 +395,65 @@ activityRoutes.route("/mostRequested/:userID").get(function(req, res) {
         console.log("Error:", err);
         res.status(400).send(err);
         return;
+    });
+});
+
+/* 
+ * @route GET /activity/log/:proxyID
+ * @desc Log a domain request
+ * @param proxyID String: the proxy sending the request
+ * @body listType String: the list the domain belongs to 
+ * @body domainName String: the name of the domain being logged
+ */
+activityRoutes.route("/log/:proxyID").post(async(req, res) => {
+    const proxyID = req.params.proxyID;
+    const listType = req.body.listType;
+    const domainName = req.body.domainName;
+
+    let domainID;
+
+    console.log(`POST /activity/log/${proxyID}`);
+
+    await Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, async(err, domain) => {
+        if (err) {
+            console.log("Error:", err);
+            res.status(400).send(err);
+            return;
+
+        } else if (!domain) {
+            // Create new domain object if one does not exist
+            domainID = await de1.createDomain(domainName, listType, proxyID);
+
+        } else {
+            // Get the domain ID
+            domainID = domain.domainID;
+
+            // Incremenet the domain object
+            de1.updateListTypeAndIncrement(domainID, domainName, proxyID, listType);
+        }
+
+        const id = uuidv4();
+        const now = Date.now();
+
+        // Create new activity log
+        const newActivity = new Activity({
+            activityID: id,
+            domainID: domainID,
+            domainName: domainName,
+            proxyID: proxyID,
+            timestamp: now,
+            listType: listType
+        });
+
+        newActivity
+            .save()
+            .catch((err) => {
+                console.log("Error creating activity record:", err);
+            });
+
+        console.log("Activity logged");
+        res.status(202).send("Activity logged");
+
     });
 });
 

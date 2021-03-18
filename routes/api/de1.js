@@ -1,7 +1,5 @@
 const express = require("express");
 const dgram = require("dgram");
-const bunyan = require("bunyan");
-const url = require("url");
 const { v4: uuidv4 } = require('uuid');
 
 const UDP_PORT = 8082;
@@ -11,8 +9,6 @@ const de1Routes = express.Router();
 const Activity = require('../../models/activity.model');
 const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
-
-const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
  * @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
@@ -42,6 +38,8 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
             res.status(400).send(err);
 
         } else if (domain) {
+            console.log("Domain exists");
+
             // Get the list type and ID for activity logging and domain updating purposes
             domainID = domain.domainID;
             domainListType = domain.listType;
@@ -67,6 +65,8 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
             // Else, send domain to DE1 to verify if it is safe
         } else {
+            console.log("Undefined domain");
+
             newDomain = true; // Flag that new domain needs to be created in DB
 
             let domainStatus = await getDomainStatus(domainName); // Get the domain status from the DE1
@@ -166,7 +166,7 @@ async function getDomainStatus(domainName) {
  * @param domainName: the domain to verify
  * @return The message from the DE1, a domain followed by a 1 for safe or 0 for malicous, eg. "google.com1"
  */
-function verfiyDomain(domainName) {
+async function verfiyDomain(domainName) {
     console.log(`verfiyDomain(${domainName})`);
 
     let de1Response = await new Promise((resolve, reject) => {
@@ -296,7 +296,7 @@ async function createActivityRecord(domainID, domainName, proxy, domainListType)
         domainName: domainName,
         proxyID: proxy,
         timestamp: now,
-        status: domainListType
+        listType: domainListType
     });
 
     newActivity
