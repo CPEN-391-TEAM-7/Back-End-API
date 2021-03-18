@@ -18,9 +18,9 @@ let Activity = new Schema({
         type: Date
     },
     listType: {
-        // BlackList, WhiteList, Safe, Unsafe, Undefined
+        // Blacklist, Whitelist, Safe, Unsafe, Undefined
         type: String,
-        enum: ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"],
+        enum: ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
         default: "Undefined",
     }
 });

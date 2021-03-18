@@ -9,7 +9,7 @@ const User = require("../../models/user.model");
 
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
-const validListTypes = ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"];
+const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
 /* 
  * @route GET /activity/recent/:userID

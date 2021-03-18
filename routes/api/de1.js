@@ -46,15 +46,10 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
             domainID = domain.domainID;
             domainListType = domain.listType;
 
-            // Mark domain as safe if already whitelisted or safe
-            if (domain.listType === "Whitelist" || domain.listType === "Safe") {
+            // Check if domain list type already defined
+            if (domainListType === "Whitelist" || domainListType === "Safe" || domainListType === "Blacklist" || domainListType === "Malicious") {
                 response.domain = domainName;
-                response.safe = "1";
-
-                // Mark domain as unsafe if already blacklisted or unsafe
-            } else if (domain.listType === "Blacklist" || domain.listType === "Malicious") {
-                response.domain = domainName;
-                response.safe = "0";
+                response.listType = domainListType;
 
                 // Else, send domain to DE1 to verify if it is safe
             } else {
@@ -62,7 +57,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
                 // Set the response to proxy based off response from DE1
                 response.domain = domainStatus.domain;
-                response.safe = domainStatus.safe = "1";
+                response.listType = domainStatus.listType;
 
                 // Get the list type for activity logging and domain updating
                 if (domainStatus.listType) {
@@ -78,7 +73,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
             // Set the response to proxy based off response from DE1
             response.domain = domainStatus.domain;
-            response.safe = domainStatus.safe = "1";
+            response.listType = domainStatus.listType;
 
             // Get the list type for activity logging and domain object creating
             if (domainStatus.listType) {
@@ -89,9 +84,9 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
         console.log("Response:", response);
 
         // Send timeout error if no response from DE1
-        if (response.domain.length < 1 || response.safe.length < 1) {
-            console.log("Timeout Error");
-            res.status(408).send("Timeout Error");
+        if (response.domain.length < 1 || response.listType.length < 1) {
+            console.log("DE1 Error");
+            res.status(408).send("DE1 Error");
 
             // Check that the DE1 sent the response for the right domain
         } else if (response.domain !== domainName) {
@@ -132,24 +127,35 @@ async function getDomainStatus(domainName) {
     let domainStatus = await verfiyDomain(domainName);
 
     const domainResponse = {};
+    let status = "";
 
     if (domainStatus) {
         // DE1 response in the format: "domain.com1" needs to be separated
         domainStatus = domainStatus.trim(); // trim white space and new lines
         domainResponse.domain = domainStatus.substr(0, domainStatus.length - 1);
-        domainResponse.safe = domainStatus.substr(domainStatus.length - 1);
+        status = domainStatus.substr(domainStatus.length - 1);
+
     } else {
-        // For no response from DE1 set response to empty
         domainResponse.domain = "";
-        domainResponse.safe = "";
     }
 
     // Set response to return list type for activity logging and updating/creating domain objects
-    if (domainResponse.safe === "1") {
+    if (status === "1") {
         domainResponse.listType = "Safe";
 
-    } else if (domainResponse.safe === "0") {
+    } else if (status === "0") {
         domainResponse.listType = "Malicious";
+
+    } else if (status === "3" || status === "4") {
+        console.log("Domain error status:", status);
+        domainResponse.listType = "Undefined";
+
+    } else if (status === "5" || status === "6") {
+        console.log("DE1 error status:", status);
+        domainResponse.listType = "";
+
+    } else {
+        domainResponse.listType = "";
     }
 
     return domainResponse;
@@ -163,7 +169,7 @@ async function getDomainStatus(domainName) {
 function verfiyDomain(domainName) {
     console.log(`verfiyDomain(${domainName})`);
 
-    return new Promise((resolve, reject) => {
+    let de1Response = await new Promise((resolve, reject) => {
 
         // Create UDP socket listening on port 8082
         const socket = dgram.createSocket("udp4");
@@ -211,7 +217,9 @@ function verfiyDomain(domainName) {
             let domainStatus = msg.toString();
             resolve(domainStatus); // Return the response
         });
-    })
+    });
+
+    return de1Response;
 }
 
 /* 
