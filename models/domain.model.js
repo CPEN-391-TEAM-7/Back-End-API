@@ -18,7 +18,7 @@ const Domain = new Schema({
         type: String,
     },
     listType: {
-        // BlackList, WhiteList, Safe, Unsafe, undefined
+        // Blacklist, Whitelist, Safe, Unsafe, undefined
         type: String,
         enum: ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
         default: "Undefined",

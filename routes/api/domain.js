@@ -48,7 +48,7 @@ domainRoutes.post("/add", (req, res) => {
 });
 
 /**
- * Adding a domain to a blacklist or a whitelist
+ * Adding a domain to a Blacklist or a Whitelist
  * @route PUT /domain/update/:id
  * {
  *      userID:
@@ -58,7 +58,7 @@ domainRoutes.post("/add", (req, res) => {
  * // Find the proxyID by the userID
  */
 
-domainRoutes.route("/update").put(async (req, res) => {
+domainRoutes.route("/update").put(async(req, res) => {
     const _userID = req.body.userID;
     const _listType = req.body.listType;
     const _domainName = req.body.domainName;
@@ -76,7 +76,7 @@ domainRoutes.route("/update").put(async (req, res) => {
         });
     }
 
-    await User.findOne({ userID: _userID }, async (err, _user) => {
+    await User.findOne({ userID: _userID }, async(err, _user) => {
         let _proxyID;
 
         if (err) {
@@ -90,11 +90,9 @@ domainRoutes.route("/update").put(async (req, res) => {
             const findThis = { proxyID: _proxyID, domainName: _domainName };
 
             let newobject = await Domain.findOneAndUpdate(
-                findThis,
-                {
+                findThis, {
                     listType: _listType,
-                },
-                { new: true, rawResult: true }
+                }, { new: true, rawResult: true }
             ).orFail();
 
             res.json(newobject);

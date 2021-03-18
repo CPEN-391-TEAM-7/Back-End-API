@@ -55,6 +55,17 @@ Response:
     safe: Number,   // 1 for safe, 0 for unsafe
 }
 ```
+
+---
+### Log domain request (used by Proxy Server):
+`POST /activity/log/:proxyID`
+
+Request Body:
+
+`listType String: the list the domain belongs to`
+
+`domainName String: the name of the domain being logged`
+
 ---
 ### Get recent domain request activity:
 `GET /activity/recent/:userID`
@@ -67,7 +78,7 @@ Request Body:
 
 `limit Integer?: (optional) how many domain requests to return`
 
-`listTypes Array[String]?: (optional) filter domain requests by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
+`listTypes Array[String]?: (optional) filter domain requests by list types (Whitelist, Blacklist, Safe, Malicious, or Undefined)`
 
 Example Body:
 
@@ -76,7 +87,7 @@ Example Body:
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
     "limit": 50,
-    "listTypes": ["Safe", "WhiteList"]
+    "listTypes": ["Safe", "Whitelist"]
 }
 ```
 
@@ -105,7 +116,7 @@ Request Body:
 
 `limit Integer: how many domains to return`
 
-`listTypes Array[String]?: (optional) filter domains by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
+`listTypes Array[String]?: (optional) filter domains by list types (Whitelist, Blacklist, Safe, Malicious, or Undefined)`
 
 Example Body:
 ```
@@ -113,7 +124,7 @@ Example Body:
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
     "limit": 50,
-    "listTypes": ["Safe", "WhiteList"]
+    "listTypes": ["Safe", "Whitelist"]
 }
 ```
 
@@ -144,7 +155,7 @@ Request Body:
 
 `limit Integer?: (optional) how many domains to return`
 
-`listTypes Array[String]?: (optional) filter domains by list types (WhiteList, BlackList, Safe, Malicious, or Undefined)`
+`listTypes Array[String]?: (optional) filter domains by list types (Whitelist, Blacklist, Safe, Malicious, or Undefined)`
 
 Example Body:
 ```
@@ -152,7 +163,7 @@ Example Body:
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
     "limit": 50,
-    "listTypes": ["Safe", "WhiteList"]
+    "listTypes": ["Safe", "Whitelist"]
 }
 ```
 
@@ -179,12 +190,12 @@ Response:
 ```
 
 ---
-### Get a user's blacklist:
-`GET /domain/blacklist?userId=<userID>`
+### Get a user's Blacklist:
+`GET /domain/Blacklist?userId=<userID>`
 
 ```
 {
-    blacklist: [
+    Blacklist: [
         {
             domainID: String,
             domainName: String,
@@ -201,13 +212,13 @@ Response:
 }
 ```
 ---
-### Get a user's whitelist:
+### Get a user's Whitelist:
 
-`GET /domain/whitelist?userId=<userID>`
+`GET /domain/Whitelist?userId=<userID>`
 
 ```
 {
-    whitelist: [
+    Whitelist: [
         {
             domainID: String,
             domainName: String,
@@ -243,10 +254,10 @@ Response:
 ---
 #### Blacklist a domain for a user:
 
-`PUT /domain?userId=<userID>&listType=blacklist`
+`PUT /domain?userId=<userID>&listType=Blacklist`
 
 ---
 #### Blacklist a domain for a user:
 
-`PUT /domain?userId=<userID>&listType=whitelist`
+`PUT /domain?userId=<userID>&listType=Whitelist`
 

@@ -1,5 +1,6 @@
 const express = require("express");
-const bunyan = require("bunyan");
+const { v4: uuidv4 } = require('uuid');
+const de1 = require("./de1");
 
 const activityRoutes = express.Router();
 
@@ -7,7 +8,7 @@ const Activity = require("../../models/activity.model");
 const Domain = require("../../models/domain.model");
 const User = require("../../models/user.model");
 
-const validListTypes = ["WhiteList", "BlackList", "Safe", "Malicious", "Undefined"];
+const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
 /* 
  * @route GET /activity/recent/:userID
@@ -396,5 +397,120 @@ activityRoutes.route("/mostRequested/:userID").get(function(req, res) {
         return;
     });
 });
+
+/* 
+ * @route GET /activity/log/:proxyID
+ * @desc Log a domain request
+ * @param proxyID String: the proxy sending the request
+ * @body listType String: the list the domain belongs to 
+ * @body domainName String: the name of the domain being logged
+ */
+activityRoutes.route("/log/:proxyID").post(async(req, res) => {
+    const proxyID = req.params.proxyID;
+    const listType = req.body.listType;
+    const domainName = req.body.domainName;
+
+    let domainID;
+
+    console.log(`POST /activity/log/${proxyID}`);
+
+    await Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, async(err, domain) => {
+        if (err) {
+            console.log("Error:", err);
+            res.status(400).send(err);
+            return;
+
+        } else if (!domain) {
+            // Create new domain object if one does not exist
+            domainID = await createDomain(domainName, listType, proxyID);
+
+        } else {
+            // Get the domain ID
+            domainID = domain.domainID;
+
+            // Incremenet the domain object
+            updateListTypeAndIncrement(domainID, domainName, proxyID, listType);
+        }
+
+        const id = uuidv4();
+        const now = Date.now();
+
+        // Create new activity log
+        const newActivity = new Activity({
+            activityID: id,
+            domainID: domainID,
+            domainName: domainName,
+            proxyID: proxyID,
+            timestamp: now,
+            listType: listType
+        });
+
+        newActivity
+            .save()
+            .catch((err) => {
+                console.log("Error creating activity record:", err);
+            });
+
+        console.log("Activity logged");
+        res.status(202).send("Activity logged");
+
+    });
+});
+
+/* 
+ * @desc Create a new domain object in the DB
+ * @param domainName: the domain 
+ * @param listType: the list the domain will be put on
+ * @param proxy: the proxy's ID
+ * @return The ID of the domain object
+ */
+async function createDomain(domainName, listType, proxy) {
+    console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
+    const id = uuidv4();
+
+    const newDomain = new Domain({
+        domainID: id,
+        proxyID: proxy,
+        domainName: domainName,
+        listType: listType,
+        num_of_accesses: 1,
+    });
+
+    await newDomain
+        .save()
+        .catch((err) => {
+            console.log("Error creating domain:", err);
+        });
+
+    return id;
+}
+
+/* 
+ * @desc Update the domain's list type and increment number of accesses
+ * @param domainID: the domain's ID
+ * @param domainName: the domain 
+ * @param domainListType: the list to update the domain to
+ * @param proxy: the proxy's ID
+ */
+async function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType) {
+    console.log(`updateListTypeAndIncrement(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
+    const filter = {
+        domainID: domainID,
+        proxyID: proxy,
+        domainName: domainName
+    }
+
+    const update = {
+        listType: domainListType,
+        $inc: {
+            num_of_accesses: 1
+        }
+    };
+
+    Domain.findOneAndUpdate(filter, update)
+        .catch((err) => {
+            console.log("Error updating domain:", err);
+        });
+}
 
 module.exports = activityRoutes;
