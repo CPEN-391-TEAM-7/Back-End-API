@@ -422,14 +422,14 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
 
         } else if (!domain) {
             // Create new domain object if one does not exist
-            domainID = await de1.createDomain(domainName, listType, proxyID);
+            domainID = await createDomain(domainName, listType, proxyID);
 
         } else {
             // Get the domain ID
             domainID = domain.domainID;
 
             // Incremenet the domain object
-            de1.updateListTypeAndIncrement(domainID, domainName, proxyID, listType);
+            updateListTypeAndIncrement(domainID, domainName, proxyID, listType);
         }
 
         const id = uuidv4();
@@ -456,5 +456,61 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
 
     });
 });
+
+/* 
+ * @desc Create a new domain object in the DB
+ * @param domainName: the domain 
+ * @param listType: the list the domain will be put on
+ * @param proxy: the proxy's ID
+ * @return The ID of the domain object
+ */
+async function createDomain(domainName, listType, proxy) {
+    console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
+    const id = uuidv4();
+
+    const newDomain = new Domain({
+        domainID: id,
+        proxyID: proxy,
+        domainName: domainName,
+        listType: listType,
+        num_of_accesses: 1,
+    });
+
+    await newDomain
+        .save()
+        .catch((err) => {
+            console.log("Error creating domain:", err);
+        });
+
+    return id;
+}
+
+/* 
+ * @desc Update the domain's list type and increment number of accesses
+ * @param domainID: the domain's ID
+ * @param domainName: the domain 
+ * @param domainListType: the list to update the domain to
+ * @param proxy: the proxy's ID
+ */
+async function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType) {
+    console.log(`updateListTypeAndIncrement(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
+    const filter = {
+        domainID: domainID,
+        proxyID: proxy,
+        domainName: domainName
+    }
+
+    const update = {
+        listType: domainListType,
+        $inc: {
+            num_of_accesses: 1
+        }
+    };
+
+    Domain.findOneAndUpdate(filter, update)
+        .catch((err) => {
+            console.log("Error updating domain:", err);
+        });
+}
 
 module.exports = activityRoutes;

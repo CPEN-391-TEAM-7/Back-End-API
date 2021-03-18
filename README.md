@@ -58,7 +58,7 @@ Response:
 
 ---
 ### Log domain request (used by Proxy Server):
-`GET /activity/log/:proxyID`
+`POST /activity/log/:proxyID`
 
 Request Body:
 
