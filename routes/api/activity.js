@@ -10,7 +10,7 @@ const User = require("../../models/user.model");
 
 const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
-/* 
+/** 
  * @route GET /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request
@@ -165,7 +165,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
     });
 });
 
-/* 
+/** 
  * @route GET /activity/allTimeMostRequested/:userID
  * @desc Get the all time most visited domains
  * @param userID String: the admin user sending the request
@@ -263,7 +263,7 @@ activityRoutes.route("/allTimeMostRequested/:userID").get(function(req, res) {
     });
 });
 
-/* 
+/** 
  * @route GET /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request

@@ -39,9 +39,18 @@ userRoutes.route("/register").post((req, res) => {
         proxyID: uuidv4(),
     });
 
-    newUser.save().then((result) => {
-        res.json(newUser);
-    });
+    newUser.save()
+        .then(result => {
+            res.json({
+                "user": result,
+                "msg": "Successful"
+            });
+        })
+        .catch(err => {
+            res.json({
+                "msg": err
+            })
+        });
 });
 
 /**

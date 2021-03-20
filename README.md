@@ -49,7 +49,7 @@ npm ci
 
 Response:
 
-```
+```json
 {    
     domain: String,
     safe: Number,   // 1 for safe, 0 for unsafe
@@ -82,7 +82,7 @@ Request Body:
 
 Example Body:
 
-```
+```json
 {
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
@@ -93,7 +93,7 @@ Example Body:
 
 Response:
 
-```
+```json
 {
     activities: [
         {
@@ -119,7 +119,7 @@ Request Body:
 `listTypes Array[String]?: (optional) filter domains by list types (Whitelist, Blacklist, Safe, Malicious, or Undefined)`
 
 Example Body:
-```
+```json
 {
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
@@ -130,7 +130,7 @@ Example Body:
 
 Response:
 
-```
+```json
 {
     domains: [
         {
@@ -158,7 +158,7 @@ Request Body:
 `listTypes Array[String]?: (optional) filter domains by list types (Whitelist, Blacklist, Safe, Malicious, or Undefined)`
 
 Example Body:
-```
+```json
 {
     "startDate": "2021-03-20T10:11:36.251Z",
     "endDate": "2021-03-01T10:11:36.251Z",
@@ -169,7 +169,7 @@ Example Body:
 
 Response:
 
-```
+```json
 [
     [
         "<domainName>",
@@ -191,9 +191,9 @@ Response:
 
 ---
 ### Get a user's Blacklist:
-`GET /domain/Blacklist?userId=<userID>`
+`GET /domain/Blacklist/:userID`
 
-```
+```json
 {
     Blacklist: [
         {
@@ -214,9 +214,9 @@ Response:
 ---
 ### Get a user's Whitelist:
 
-`GET /domain/Whitelist?userId=<userID>`
+`GET /domain/Whitelist/:userID`
 
-```
+```json
 {
     Whitelist: [
         {
@@ -239,7 +239,7 @@ Response:
 
 `GET /domain?userId=<userID>&domainName=<domainName>`
 
-```
+```json
 {
     domainID: String,
     domainName: String,
