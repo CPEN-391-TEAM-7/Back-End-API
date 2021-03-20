@@ -190,12 +190,14 @@ Response:
 ```
 
 ---
-### Get a user's Blacklist:
-`GET /domain/Blacklist/:userID`
+### Get a user's Blacklist or Whitelist:
+`GET /domain/:listType/:userID`
 
+RESPONSE: 
 ```json
 {
-    "Blacklist": [
+    "msg": "success or failed"
+    "list": [
         {
             "domainID": "String",
             "domainName": "String",
@@ -211,10 +213,41 @@ Response:
     ],
 }
 ```
----
-### Get a user's Whitelist:
+
+___
+
+### Add a domain to a list
+`PUT /domain/update`
+
+BODY:
+```json
+{
+    "userID": "id of the user",
+    "listType": "list you want to add to",
+    "domainName": "name of the domain"
+}
+```
+
+RESPONSE:
+```json
+{
+    "msg": "Success",
+    "domain": "domain Object"
+}
+```
+<!-- ### Get a user's Whitelist:
 
 `GET /domain/Whitelist/:userID`
+
+BODY:
+```json
+{
+    "listType": "Whitelist",
+}
+```
+
+
+RESPONSE:
 
 ```json
 {
@@ -233,7 +266,7 @@ Response:
         },
     ],
 }
-```
+``` -->
 ---
 ### Get a domain's status:
 

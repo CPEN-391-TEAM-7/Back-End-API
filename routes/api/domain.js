@@ -59,50 +59,91 @@ domainRoutes.post("/add", (req, res) => {
  */
 
 domainRoutes.route("/update").put(async(req, res) => {
-    const _userID = req.body.userID;
-    const _listType = req.body.listType;
-    const _domainName = req.body.domainName;
+    const { userID, listType, domainName } = req.body;
 
     const valid_listType = _.includes(
         ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
-        _listType
+        listType
     );
 
     if (!valid_listType) {
         console.log("It's not a valid listType");
         res.status("400").json({
             status: `400`,
-            message: `${_listType} is not a valid listType`,
+            message: `${listType} is not a valid listType`,
         });
     }
 
-    await User.findOne({ userID: _userID }, async(err, _user) => {
+    await User.findOne({ userID: userID }, async(err, _user) => {
         let _proxyID;
 
         if (err) {
             log.error("Error: " + err);
             res.status("400").send(err);
             return;
-        } else if (_user) {
+        } 
+        else if (_user) {
             _proxyID = _user.proxyID;
-            console.log("I got the user");
-
-            const findThis = { proxyID: _proxyID, domainName: _domainName };
+            const findThis = { proxyID: _proxyID, domainName: domainName };
 
             let newobject = await Domain.findOneAndUpdate(
                 findThis, {
-                    listType: _listType,
+                    listType: listType,
                 }, { new: true, rawResult: true }
             ).orFail();
 
-            res.json(newobject);
-        } else {
+            res.json({
+                "msg": "Success",
+                "domain": newobject
+            });
+        } 
+        else {
             console.log("I didn't get the user");
             log.error("No such user exists");
             res.status("400").send("This user doesn't exist.");
         }
     });
 });
+
+/**
+ * @desc Fetch all domains in blacklist
+ */
+
+domainRoutes.route("/:listType/:userID").get( async (req, res) => {
+    const {userID, listType} = req.params;
+
+    const valid_listType = _.includes(
+        ["Whitelist", "Blacklist"],
+        listType
+    );
+
+    if (!valid_listType) {
+        console.log("It's not a valid listType");
+        res.status("400").json({
+            status: `400`,
+            message: `${listType} is not a valid listType`,
+        });
+    }
+
+    const findThis = {
+        "listType": listType,
+        "userID": userID
+    }
+
+    await Domain.find(findThis)
+        .then(domains => {
+            res.json({
+                "msg": "Success",
+                "list": domains
+            })
+        })
+        .catch(err => {
+            res.json({
+                "msg": err,
+                "list": []
+            })
+        });
+})
 
 /**
  * @route get /domain/all
