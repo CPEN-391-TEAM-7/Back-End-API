@@ -51,8 +51,8 @@ Response:
 
 ```json
 {    
-    domain: String,
-    safe: Number,   // 1 for safe, 0 for unsafe
+    "domain": "String",
+    "safe": "Number",   // 1 for safe, 0 for unsafe
 }
 ```
 
@@ -95,16 +95,16 @@ Response:
 
 ```json
 {
-    activities: [
+    "activities": [
         {
-            "listType": String,
-            "domainName": String,
-            "timestamp": Datetime,
+            "listType": "String",
+            "domainName": "String",
+            "timestamp": "Datetime",
         },
         ...
     ],
-    "lastEndDate": Datetime, // the timestamp of the oldest activity
-    "count": Integer // total activities returned
+    "lastEndDate": "Datetime", // the timestamp of the oldest activity
+    "count": "Integer" // total activities returned
 }
 ```
 
@@ -132,11 +132,11 @@ Response:
 
 ```json
 {
-    domains: [
+    "domains": [
         {
-            "domainName": String,
-            "listType": String,
-            "num_of_accesses": Integer
+            "domainName": "String",
+            "listType": "String",
+            "num_of_accesses": "Integer"
         },
         ...
     ]
@@ -174,15 +174,15 @@ Response:
     [
         "<domainName>",
         {
-            "count": Integer,
-            "listType": String
+            "count": "Integer",
+            "listType": "String"
         },
     ],
     [
         "<domainName>",
         {
-            "count": Integer,
-            "listType": String
+            "count": "Integer",
+            "listType": "String"
         },
     ]
     ...
@@ -195,18 +195,18 @@ Response:
 
 ```json
 {
-    Blacklist: [
+    "Blacklist": [
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
     ],
 }
@@ -218,18 +218,18 @@ Response:
 
 ```json
 {
-    Whitelist: [
+    "Whitelist": [
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
         {
-            domainID: String,
-            domainName: String,
+            "domainID": "String",
+            "domainName": "String",
         },
     ],
 }
@@ -241,9 +241,9 @@ Response:
 
 ```json
 {
-    domainID: String,
-    domainName: String,
-    listType: String,
+    "domainID": "String",
+    "domainName": "String",
+    "listType": "String",
 }
 ```
 ---
