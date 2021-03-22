@@ -51,7 +51,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
                 // Else, send domain to DE1 to verify if it is safe
             } else {
-                let domainStatus = await getDomainStatus(domainName); // Get the domain status from the DE1
+                let domainStatus = getDomainStatus(domainName); // Get the domain status from the DE1
 
                 // Set the response to proxy based off response from DE1
                 response.domain = domainStatus.domain;
@@ -69,7 +69,7 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
 
             newDomain = true; // Flag that new domain needs to be created in DB
 
-            let domainStatus = await getDomainStatus(domainName); // Get the domain status from the DE1
+            let domainStatus = getDomainStatus(domainName); // Get the domain status from the DE1
 
             // Set the response to proxy based off response from DE1
             response.domain = domainStatus.domain;
@@ -121,10 +121,10 @@ de1Routes.get('/verify/:proxyID', async function(req, res) {
  * @param domainName: the domain to verify
  * @return The formatted reponse message
  */
-async function getDomainStatus(domainName) {
+function getDomainStatus(domainName) {
     console.log(`getDomainStatus(${domainName})`);
 
-    let domainStatus = await verfiyDomain(domainName);
+    let domainStatus = contactDE1(domainName);
 
     const domainResponse = {};
     let status = "";
@@ -166,46 +166,43 @@ async function getDomainStatus(domainName) {
  * @param domainName: the domain to verify
  * @return The message from the DE1, a domain followed by a 1 for safe or 0 for malicous, eg. "google.com1"
  */
-async function verfiyDomain(domainName) {
+function contactDE1(domainName) {
     console.log(`verfiyDomain(${domainName})`);
 
-    let de1Response = await new Promise((resolve, reject) => {
+    let de1Response = null;
 
-        // Create UDP socket listening on port 8082
-        const socket = dgram.createSocket("udp4");
+    // Create UDP socket listening on port 8082
+    const socket = dgram.createSocket("udp4");
 
-        socket.bind(UDP_PORT, function() {
-            console.log(`Server is running UDP on Port: ${UDP_PORT}`);
-        });
+    socket.bind(UDP_PORT, function() {
+        console.log(`Server is running UDP on Port: ${UDP_PORT}`);
+    });
 
-        socket.on("listening", () => {
-            let addr = socket.address();
-            console.log(`Listening for UDP packets at ${addr.address}:${addr.port}`);
-        });
+    socket.on("listening", () => {
+        let addr = socket.address();
+        console.log(`Listening for UDP packets at ${addr.address}:${addr.port}`);
+    });
 
-        const de1IP = "50.98.133.70";
-        const de1Port = 41234;
+    const de1IP = "50.98.133.70";
+    const de1Port = 41234;
 
-        // For testing locally
-        // const de1IP = "127.0.0.1";
-        // const de1Port = 2399;
-
-        // Send the domain name to the DE1
-        socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
-            if (err) {
-                console.log("Error sending DE1 message:", err);
-                resolve(null);
-            }
-            console.log(`UDP message sent to ${de1IP}:${de1Port}`);
-        });
-
-        // Close the socket if no response from DE1 after 3 sec
-        let de1Timeout = setTimeout(function() {
-            socket.close();
-            console.log("Cannot Reach DE1-SoC");
+    // Send the domain name to the DE1
+    socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
+        if (err) {
+            console.log("Error sending DE1 message:", err);
             resolve(null);
-        }, 3000);
+        }
+        console.log(`UDP message sent to ${de1IP}:${de1Port}`);
+    });
 
+    // Close the socket if no response from DE1 after 3 sec
+    let de1Timeout = setTimeout(function() {
+        socket.close();
+        console.log("Cannot Reach DE1-SoC");
+        return null;
+    }, 3000);
+
+    while (!de1Response) {
         // Receive response from the DE1
         socket.on("message", (msg, info) => {
             clearTimeout(de1Timeout); // Cancel 3 sec timer
@@ -214,10 +211,9 @@ async function verfiyDomain(domainName) {
             console.log(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
             socket.close();
 
-            let domainStatus = msg.toString();
-            resolve(domainStatus); // Return the response
+            de1Response = msg.toString();
         });
-    });
+    }
 
     return de1Response;
 }
