@@ -235,38 +235,6 @@ RESPONSE:
     "domain": "domain Object"
 }
 ```
-<!-- ### Get a user's Whitelist:
-
-`GET /domain/Whitelist/:userID`
-
-BODY:
-```json
-{
-    "listType": "Whitelist",
-}
-```
-
-
-RESPONSE:
-
-```json
-{
-    "Whitelist": [
-        {
-            "domainID": "String",
-            "domainName": "String",
-        },
-        {
-            "domainID": "String",
-            "domainName": "String",
-        },
-        {
-            "domainID": "String",
-            "domainName": "String",
-        },
-    ],
-}
-``` -->
 ---
 ### Get a domain's status:
 

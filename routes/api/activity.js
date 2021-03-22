@@ -398,7 +398,7 @@ activityRoutes.route("/mostRequested/:userID").get(function(req, res) {
     });
 });
 
-/* 
+/** 
  * @route GET /activity/log/:proxyID
  * @desc Log a domain request
  * @param proxyID String: the proxy sending the request

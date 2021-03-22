@@ -30,27 +30,46 @@ userRoutes.route("/").get(function(req, res) {
  * }
  */
 
-userRoutes.route("/register").post((req, res) => {
-    const body = req.body;
+userRoutes.route("/register").post(async (req, res) => {
+    const {userID, name} = req.body;
 
     const newUser = new User({
-        userID: body.userID,
-        name: body.name,
+        userID: userID,
+        name: name,
         proxyID: uuidv4(),
     });
 
-    newUser.save()
-        .then(result => {
-            res.json({
-                "user": result,
-                "msg": "Successful"
-            });
-        })
-        .catch(err => {
-            res.json({
-                "msg": err
+    await User.findOne({ userID: userID}, async(err, user) => {
+        if(err) {
+            log.error("Error: " + err);
+            res.status("400").json({
+                "msg": "Unknown error",
+                "error": err
             })
-        });
+        }
+        else if(user) {
+            res.status("409").json({
+                "msg": "User exsits",
+                "user": user
+            })
+        }
+        else {
+            newUser.save()
+                .then(result => {
+                    res.status("200").json({
+                        "msg": "Successful",
+                        "user": result,
+                    });
+                })
+                .catch(err => {
+                    res.status("400").json({
+                        "msg": "Unknown Error",
+                        "error": err
+                    })
+                });
+        }
+    });
+
 });
 
 /**
