@@ -52,11 +52,13 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
                 response.listType = domainListType;
 
             } else {
+                console.log("Undefined domain");
+
                 contactDE1 = true;
             }
 
         } else {
-            console.log("Undefined domain");
+            console.log("New domain");
 
             newDomain = true; // Flag that new domain needs to be created in DB
 
@@ -147,14 +149,8 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
                 }
             });
         } else {
-            // If a new domain create an object for it in the DB
-            if (newDomain) {
-                domainID = createDomain(domainName, domainListType, proxyID);
-
-                // Update the object's list type if needed and increment number of accesses
-            } else {
-                updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
-            }
+            // Update the object's list type if needed and increment number of accesses
+            updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
 
             // Record the domain request
             createActivityRecord(domainID, domainName, proxyID, domainListType);
@@ -193,10 +189,10 @@ function getDomainStatus(domainStatus) {
     }
 
     // Set response to return list type for activity logging and updating/creating domain objects
-    if (status === "1") {
+    if (status === "0") {
         domainResponse.listType = "Safe";
 
-    } else if (status === "0") {
+    } else if (status === "1") {
         domainResponse.listType = "Malicious";
 
     } else if (status === "3" || status === "4") {
