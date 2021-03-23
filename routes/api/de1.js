@@ -79,8 +79,10 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
             const de1IP = "50.98.133.70";
             const de1Port = 41234;
 
+            const de1Message = domainName.concat("\n");
+
             // Send the domain name to the DE1
-            socket.send(domainName, 0, domainName.length, de1Port, de1IP, function(err) {
+            socket.send(de1Message, 0, de1Message.length, de1Port, de1IP, function(err) {
                 if (err) {
                     console.log("Error sending DE1 message:", err);
                     resolve(null);
@@ -180,6 +182,7 @@ function getDomainStatus(domainStatus) {
     let status = "";
 
     if (domainStatus) {
+        console.log("DE1: ", domainStatus);
         // DE1 response in the format: "domain.com1" needs to be separated
         domainStatus = domainStatus.trim(); // trim white space and new lines
         domainResponse.domain = domainStatus.substr(0, domainStatus.length - 1);
