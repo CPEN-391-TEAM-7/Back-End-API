@@ -49,7 +49,7 @@ domainRoutes.post("/add", (req, res) => {
 
 /**
  * Adding a domain to a Blacklist or a Whitelist
- * @route PUT /domain/update/:id
+ * @route PUT /domain/update
  * {
  *      userID:
  *      listType:
@@ -66,47 +66,73 @@ domainRoutes.route("/update").put(async(req, res) => {
         listType
     );
 
+    let response = {
+        "status": "Failed",
+        "domain": "",
+        "msg": "",
+    }
+
     if (!valid_listType) {
         console.log("It's not a valid listType");
-        res.status("400").json({
-            status: `400`,
-            message: `${listType} is not a valid listType`,
-        });
+        response.msg = `${listType} is not a valid listType`;
+
+        res.json(response);
+
+        return;
     }
+
+    
 
     await User.findOne({ userID: userID }, async(err, _user) => {
         let _proxyID;
 
         if (err) {
             log.error("Error: " + err);
-            res.status("400").send(err);
-            return;
+            response.msg = err;
+
+            res.json(response); return;
         } 
         else if (_user) {
             _proxyID = _user.proxyID;
-            const findThis = { proxyID: _proxyID, domainName: domainName };
 
-            let newobject = await Domain.findOneAndUpdate(
-                findThis, {
-                    listType: listType,
-                }, { new: true, rawResult: true }
-            ).orFail();
+            const query = { 
+                proxyID: _proxyID, 
+                domainName: domainName 
+            };
 
-            res.json({
-                "msg": "Success",
-                "domain": newobject
+            const update = {
+                listType: listType,
+            }
+
+            const options = {upsert: true, new: true, setDefaultsOnInsert: true}
+            
+            await Domain.findOneAndUpdate(query, update, options, (err, ret) => {
+                if(err) {
+                    response.msg = err;
+                    res.json(response); return;
+                }
+                else {
+                    response.status = "Success"
+                    response.domain = ret;
+                    response.msg = `Successfully aded domain to ${listType}`;
+        
+                    res.json(response); return;
+                }
             });
+
         } 
         else {
             console.log("I didn't get the user");
             log.error("No such user exists");
-            res.status("400").send("This user doesn't exist.");
+            response.msg = "This user doesn't exist";
+
+            res.json(response); return;
         }
     });
 });
 
 /**
- * @desc Fetch all domains in blacklist
+ * @desc Fetch all domains in blacklist or whitelist
  */
 
 domainRoutes.route("/:listType/:userID").get( async (req, res) => {
@@ -150,9 +176,9 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
  * @desc gets all domain documents in the database.
  */
 
-domainRoutes.route("/all").get((req, res) => {
+domainRoutes.route("/all").get(async (req, res) => {
     //endpoint for accessing all users in database
-    Domain.find()
+    await Domain.find()
         .then((domains) => res.send(domains)) //Note here.
         .catch((err) => console.log(err));
 });
