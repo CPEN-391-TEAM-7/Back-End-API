@@ -104,18 +104,39 @@ domainRoutes.route("/update").put(async(req, res) => {
                 listType: listType,
             }
 
-            const options = {upsert: true, new: true, setDefaultsOnInsert: true}
+            const options = {upsert: true, new: true}
             
             await Domain.findOneAndUpdate(query, update, options, (err, ret) => {
-                if(err) {
-                    response.msg = err;
+                if(!err) {
+                    if(!ret) {
+                        ret = new Domain({
+                            domainID: "",
+                            proxyID: _proxyID,
+                            domainName: domainName,
+                            listType: listType,
+                            num_of_accesses: 0
+                        })
+
+                        // Save the document
+                        ret.save(function(error) {
+                            if (error) {
+                                response.msg = error;
+                                res.json(response); return;
+                            }
+                        });
+                        response.status = "Success"
+                        response.domain = ret;
+                        response.msg = `Successfully added new domain to ${listType}`;
+                        res.json(response); return;
+                    }
+                    response.status = "Success"
+                    response.domain = ret;
+                    response.msg = `Successfully added domain to ${listType}`;
+        
                     res.json(response); return;
                 }
                 else {
-                    response.status = "Success"
-                    response.domain = ret;
-                    response.msg = `Successfully aded domain to ${listType}`;
-        
+                    response.msg = err;
                     res.json(response); return;
                 }
             });
