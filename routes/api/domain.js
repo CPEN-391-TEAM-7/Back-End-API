@@ -159,6 +159,8 @@ domainRoutes.route("/update").put(async(req, res) => {
 domainRoutes.route("/:listType/:userID").get( async (req, res) => {
     const {userID, listType} = req.params;
 
+    console.log(userID + listType);
+
     const valid_listType = _.includes(
         ["Whitelist", "Blacklist"],
         listType
@@ -172,24 +174,48 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
         });
     }
 
-    const findThis = {
-        "listType": listType,
-        "userID": userID
-    }
 
-    await Domain.find(findThis)
-        .then(domains => {
+    await User.findOne({userID: userID}, async (err, user) => {
+        if(err){
             res.json({
-                "msg": "Success",
-                "list": domains
+                status: 'Failed',
+                msg: err
             })
-        })
-        .catch(err => {
+        }
+
+        else if(user) {
+
+            const findThis = {
+                listType: listType,
+                proxyID: user.proxyID
+            }
+
+            await Domain.find(findThis)
+            .then(domains => {
+                res.json({
+                    status: "Success",
+                    msg: "Found",
+                    list: domains
+                })
+            })
+            .catch(err => {
+                res.json({
+                    status: "Failed",
+                    msg: err,
+                    list: []
+                })
+            });
+        }
+
+        else {
             res.json({
-                "msg": err,
-                "list": []
+                status: "Failed",
+                msg: "User doesn't exist.",
             })
-        });
+        }
+    })
+
+    
 })
 
 /**
