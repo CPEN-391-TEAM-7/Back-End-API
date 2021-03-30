@@ -284,7 +284,9 @@ RESPONSE If user already exists (CODE 409):
 {
     "msg": "User already exists",
     "user" {
-
+        "userID": ,
+        "name": ,
+        "proxyID": 
     }
 }
 ```
@@ -294,7 +296,9 @@ RESPONSE SUCCESS
 {
     "msg": "Successful",
     "user" : {
-        
+        "userID": ,
+        "name": ,
+        "proxyID": 
     }
 }
 ```
