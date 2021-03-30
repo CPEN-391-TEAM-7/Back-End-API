@@ -19,14 +19,13 @@ userRoutes.route("/").get(function(req, res) {
     res.status(200).send("Contacted User Endpoint");
 });
 /**
- * @route POST /user/add
+ * @route POST /user/register
  * @desc endpoint for adding a new user document in the database.
  *
  *  An endpoint for manually creating a user for devlopment purposes.
  * {
  *      userID:
  *      name:
- *      proxyID:
  * }
  */
 
