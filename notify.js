@@ -27,11 +27,11 @@ function sendAlert( is_malware, ip_address ) {
           title: "Securify Alert",
           body:message + ip_address
         },
-        tokens:tokens,
+        topic:'alert',
     }
 
     // send to all devices
-    admin.messaging().sendMulticast(message)
+    admin.messaging().send(message)
         .then((response) => {
             console.log("Success",response);
         })
