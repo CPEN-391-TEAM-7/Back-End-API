@@ -11,19 +11,20 @@ const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
 
 /* 
- * @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
+ * @route GET /de1/verify/:proxyID
  * @desc Verify if a domain is safe, and updates domain in the DB if necessary
  * @param proxyID String: the proxy sending the request
- * @query domain String: the domain to verify
+ * @body domain String: the domain to verify
+ * @body ipAddress String: the ip address of the device making to domain request
  * @return domain String: the name of the domain
  * @return safe Integer: a 1 for safe or a 0 for a malicious domain
  */
 de1Routes.get('/verify/:proxyID', function(req, res) {
+    const domainName = req.body.domainName;
+    const ipAddress = req.body.ipAddress;
+    const proxyID = req.params.proxyID;
 
-    let domainName = req.query.domain;
-    let proxyID = req.params.proxyID;
-
-    console.log(`GET /de1/verify?${proxyID}=<proxyID>&domain=${domainName}`);
+    console.log(`GET /de1/verify/${proxyID}, ${domainName}, ${ipAddress}`);
 
     const response = {};
 
@@ -54,7 +55,7 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
             } else {
                 console.log("Undefined domain");
 
-                contactDE1 = true;
+                contactDE1 = true; // Flag to contact DE1 to get domain list type
             }
 
         } else {
@@ -62,13 +63,13 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
 
             newDomain = true; // Flag that new domain needs to be created in DB
 
-            contactDE1 = true;
+            contactDE1 = true; // Flag to contact DE1 to get domain list type
         }
 
+        // Contact DE1 to determine domain list type
         if (contactDE1) {
             // Create UDP socket listening on port 8082
             const socket = dgram.createSocket("udp4");
-
             socket.bind(UDP_PORT, function() {
                 console.log(`Server is running UDP on Port: ${UDP_PORT}`);
             });
@@ -141,19 +142,21 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
                     }
 
                     // Record the domain request
-                    createActivityRecord(domainID, domainName, proxyID, domainListType);
+                    createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
 
                     console.log("Send");
 
                     res.status(200).json(response);
                 }
             });
+
+            // Else, no need to contact DE1 to determine list type
         } else {
             // Update the object's list type if needed and increment number of accesses
             updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
 
             // Record the domain request
-            createActivityRecord(domainID, domainName, proxyID, domainListType);
+            createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
 
             console.log("Send");
 
@@ -273,8 +276,8 @@ function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType)
  * @param domainListType: the list to update the domain to
  * @param proxy: the proxy's ID
  */
-function createActivityRecord(domainID, domainName, proxy, domainListType) {
-    console.log(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
+function createActivityRecord(domainID, domainName, proxy, domainListType, ipAddress) {
+    console.log(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType}, ${ipAddress})`);
     const id = uuidv4();
     const now = Date.now();
 
@@ -284,7 +287,8 @@ function createActivityRecord(domainID, domainName, proxy, domainListType) {
         domainName: domainName,
         proxyID: proxy,
         timestamp: now,
-        listType: domainListType
+        listType: domainListType,
+        ipAddress: ipAddress
     });
 
     newActivity
