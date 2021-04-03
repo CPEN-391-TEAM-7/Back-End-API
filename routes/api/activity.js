@@ -429,11 +429,12 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
             domainID = await createDomain(domainName, listType, proxyID);
 
         } else {
-            // Get the domain ID
-            domainID = domain.domainID;
-
-            // Incremenet the domain object
-            incrementDomain(domainID, domainName, proxyID);
+            // Increment the number of accesses
+            domain.update({
+                $inc: {
+                    num_of_accesses: 1
+                }
+            });
         }
 
         const id = uuidv4();
@@ -488,33 +489,6 @@ async function createDomain(domainName, listType, proxy) {
         });
 
     return id;
-}
-
-/* 
- * @desc Update the domain's list type and increment number of accesses
- * @param domainID: the domain's ID
- * @param domainName: the domain 
- * @param domainListType: the list to update the domain to
- * @param proxy: the proxy's ID
- */
-async function incrementDomain(domainID, domainName, proxy) {
-    console.log(`incrementDomain(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
-    const filter = {
-        domainID: domainID,
-        proxyID: proxy,
-        domainName: domainName
-    }
-
-    const update = {
-        $inc: {
-            num_of_accesses: 1
-        }
-    };
-
-    Domain.findOneAndUpdate(filter, update)
-        .catch((err) => {
-            console.log("Error updating domain:", err);
-        });
 }
 
 module.exports = activityRoutes;
