@@ -277,7 +277,7 @@ function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType)
  * @param proxy: the proxy's ID
  */
 function createActivityRecord(domainID, domainName, proxy, domainListType, ipAddress) {
-    console.log(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
+    console.log(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType}, ${ipAddress})`);
     const id = uuidv4();
     const now = Date.now();
 
