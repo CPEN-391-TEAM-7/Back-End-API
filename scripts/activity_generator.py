@@ -23,8 +23,8 @@ col_list = ["Rank","Root Domain","Linking Root Domains","Domain Authority"]
 
 df = pd.read_csv("top500Domains.csv", usecols=col_list)
 
-for domain in df["Root Domain"]:
-    postBody["domainName"] = domain
+for _ in range(500):
+    postBody["domainName"] = df["Root Domain"][randint(0, 499)]
     postBody["listType"] = validListTypes[randint(0,4)]
     response = requests.post(URL + proxyID, json.dumps(postBody))
     print(response.content)
