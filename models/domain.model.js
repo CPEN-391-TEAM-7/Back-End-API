@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 const Schema = mongoose.Schema;
 
 // This model will always be created by the proxy
@@ -7,15 +8,20 @@ const Domain = new Schema({
     domainID: {
         // a randomly generated ID by Proxy
         type: String,
+        index: true,
+        require: true, 
         unique: true,
-        required: true,
+        sparse: true
     },
     proxyID: {
         type: String,
+        require: true, 
+        sparse: true
     },
     domainName: {
         // a URL
         type: String,
+        default: "www.empty.com"
     },
     listType: {
         // Blacklist, Whitelist, Safe, Unsafe, undefined
@@ -26,6 +32,7 @@ const Domain = new Schema({
     num_of_accesses: {
         // Number of accesses to this domain
         type: Number,
+        default: 0
     },
 });
 

@@ -402,7 +402,7 @@ activityRoutes.route("/mostRequested/:userID").get(function(req, res) {
 });
 
 /** 
- * @route GET /activity/log/:proxyID
+ * @route POST /activity/log/:proxyID
  * @desc Log a domain request
  * @param proxyID String: the proxy sending the request
  * @body listType String: the list the domain belongs to 

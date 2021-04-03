@@ -44,6 +44,10 @@ npm ci
 
 # Endpoints
 
+---
+
+## De1 Endpoints
+
 ### Verify if a domain is safe (used by Proxy Server):
 `GET /de1/verify/:proxyID?domain=<domainName>`
 
@@ -57,6 +61,9 @@ Response:
 ```
 
 ---
+
+## Activity Endpoints
+
 ### Log domain request (used by Proxy Server):
 `POST /activity/log/:proxyID`
 
@@ -190,13 +197,19 @@ Response:
 ```
 
 ---
+
+## Domain Endpoints
+
+
 ### Get a user's Blacklist or Whitelist:
 `GET /domain/:listType/:userID`
+
+EXAMPLE: GET /domain/Whitelist/test-userID
 
 RESPONSE: 
 ```json
 {
-    "msg": "success or failed"
+    "Status": "Success or failed",
     "list": [
         {
             "domainID": "String",
@@ -219,6 +232,8 @@ ___
 ### Add a domain to a list
 `PUT /domain/update`
 
+If the domain doesn't exist in the DB, it will create a new document for this domain.
+
 BODY:
 ```json
 {
@@ -231,8 +246,9 @@ BODY:
 RESPONSE:
 ```json
 {
-    "msg": "Success",
-    "domain": "domain Object"
+    "Status": "Success or Failed",
+    "msg": "",
+    "domain": "domain Document"
 }
 ```
 ---
@@ -248,17 +264,42 @@ RESPONSE:
 }
 ```
 ---
-### Add a new domain to a user's list of domains:
 
-`POST /domain?userId=<userID>&domainName=<domainName>&listType=<listType>`
+## User Endpoints
 
----
-#### Blacklist a domain for a user:
+### Registering a new User
 
-`PUT /domain?userId=<userID>&listType=Blacklist`
+`POST /user/register`
 
----
-#### Blacklist a domain for a user:
+REQUETS BODY:
+```json
+{
+    "userID": "ID from Google Login",
+    "name": "Full name from Google Login"
+}
+```
 
-`PUT /domain?userId=<userID>&listType=Whitelist`
+RESPONSE If user already exists (CODE 409):
+```json
+{
+    "msg": "User already exists",
+    "user" {
+        "userID": ,
+        "name": ,
+        "proxyID": 
+    }
+}
+```
+
+RESPONSE SUCCESS 
+```json
+{
+    "msg": "Successful",
+    "user" : {
+        "userID": ,
+        "name": ,
+        "proxyID": 
+    }
+}
+```
 
