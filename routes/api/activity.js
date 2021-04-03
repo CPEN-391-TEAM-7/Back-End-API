@@ -103,9 +103,10 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                 activityFilter.$or = listTypeFilter;
             }
 
-            // Get activities in order of most recent first using the created filters
+            // Get  a set limit of activities in order of most recent first using the created filters,
+            // only retrieving the specified attributes
             if (limit) {
-                Activity.find(activityFilter, "listType domainName timestamp").sort({ timestamp: "desc" }).limit(limit).exec((err, activities) => {
+                Activity.find(activityFilter, "listType domainName timestamp ipAddress").sort({ timestamp: "desc" }).limit(limit).exec((err, activities) => {
                     if (err) {
                         console.log("Error fetching activities:", err);
                         res.status(400).send(err);
@@ -132,7 +133,9 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                 });
 
             } else {
-                Activity.find(activityFilter, "-proxyID -domainID -activityID").sort({ timestamp: "desc" }).exec((err, activities) => {
+                // Get activities in order of most recent first using the created filters,
+                // only retrieving the specified attributes
+                Activity.find(activityFilter, "listType domainName timestamp ipAddress").sort({ timestamp: "desc" }).exec((err, activities) => {
                     if (err) {
                         console.log("Error fetching activities:", err);
                         res.status(400).send(err);
@@ -409,6 +412,7 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
     const proxyID = req.params.proxyID;
     const listType = req.body.listType;
     const domainName = req.body.domainName;
+    const ipAddress = req.body.ipAddress;
 
     let domainID;
 
@@ -429,7 +433,7 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
             domainID = domain.domainID;
 
             // Incremenet the domain object
-            updateListTypeAndIncrement(domainID, domainName, proxyID, listType);
+            incrementDomain(domainID, domainName, proxyID);
         }
 
         const id = uuidv4();
@@ -442,7 +446,8 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
             domainName: domainName,
             proxyID: proxyID,
             timestamp: now,
-            listType: listType
+            listType: listType,
+            ipAddress: ipAddress
         });
 
         newActivity
@@ -492,8 +497,8 @@ async function createDomain(domainName, listType, proxy) {
  * @param domainListType: the list to update the domain to
  * @param proxy: the proxy's ID
  */
-async function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType) {
-    console.log(`updateListTypeAndIncrement(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
+async function incrementDomain(domainID, domainName, proxy) {
+    console.log(`incrementDomain(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
     const filter = {
         domainID: domainID,
         proxyID: proxy,
@@ -501,7 +506,6 @@ async function updateListTypeAndIncrement(domainID, domainName, proxy, domainLis
     }
 
     const update = {
-        listType: domainListType,
         $inc: {
             num_of_accesses: 1
         }
