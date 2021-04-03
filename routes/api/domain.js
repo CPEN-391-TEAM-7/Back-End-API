@@ -11,7 +11,7 @@ const User = require("../../models/user.model");
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
-@route GET /domain/unsafe/
+@route GET /domain/unsafe/:status
 @desc Alert the user that the domain they attempted to access is unsafe
 */
 

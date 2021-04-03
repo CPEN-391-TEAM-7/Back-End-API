@@ -11,19 +11,20 @@ const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
 
 /* 
- * @route GET /de1/verify/:proxyID?domain=<domainName>
+ * @route GET /de1/verify/:proxyID
  * @desc Verify if a domain is safe, and updates domain in the DB if necessary
  * @param proxyID String: the proxy sending the request
- * @query domain String: the domain to verify
+ * @body domain String: the domain to verify
+ * @body ipAddress String: the ip address of the device making to domain request
  * @return domain String: the name of the domain
  * @return safe Integer: a 1 for safe or a 0 for a malicious domain
  */
 de1Routes.get('/verify/:proxyID', function(req, res) {
-    const domainName = req.query.domain;
-    const ipAddress = req.query.ipAddress;
+    const domainName = req.body.domainName;
+    const ipAddress = req.body.ipAddress;
     const proxyID = req.params.proxyID;
 
-    console.log(`GET /de1/verify/${proxyID}?domain=${domainName}`);
+    console.log(`GET /de1/verify/${proxyID}, ${domainName}, ${ipAddress}`);
 
     const response = {};
 

@@ -49,7 +49,13 @@ npm ci
 ## De1 Endpoints
 
 ### Verify if a domain is safe (used by Proxy Server):
-`GET /de1/verify/:proxyID?domain=<domainName>`
+`GET /de1/verify/:proxyID`
+
+Request Body:
+
+`domainName String: the domain to verify`
+
+`ipAddress String: the ip address of the device making to domain request`
 
 Response:
 
@@ -72,6 +78,8 @@ Request Body:
 `listType String: the list the domain belongs to`
 
 `domainName String: the name of the domain being logged`
+
+`ipAddress String: the ip address of the device making to domain request`
 
 ---
 ### Get recent domain request activity:
@@ -107,6 +115,7 @@ Response:
             "listType": "String",
             "domainName": "String",
             "timestamp": "Datetime",
+            "ipAddress": "String"
         },
         ...
     ],
