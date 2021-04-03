@@ -11,7 +11,7 @@ const Domain = require('../../models/domain.model');
 const User = require('../../models/user.model');
 
 /* 
- * @route GET /de1/verify?proxyID=<proxyID>&domain=<domainName>
+ * @route GET /de1/verify/:proxyID?domain=<domainName>
  * @desc Verify if a domain is safe, and updates domain in the DB if necessary
  * @param proxyID String: the proxy sending the request
  * @query domain String: the domain to verify
@@ -23,7 +23,7 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
     const ipAddress = req.query.ipAddress;
     const proxyID = req.params.proxyID;
 
-    console.log(`GET /de1/verify?proxyID=${proxyID}&domain=${domainName}`);
+    console.log(`GET /de1/verify/${proxyID}?domain=${domainName}`);
 
     const response = {};
 
