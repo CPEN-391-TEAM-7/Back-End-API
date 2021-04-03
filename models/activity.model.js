@@ -22,6 +22,9 @@ let Activity = new Schema({
         type: String,
         enum: ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"],
         default: "Undefined",
+    },
+    ipAddress: {
+        type: String
     }
 });
 

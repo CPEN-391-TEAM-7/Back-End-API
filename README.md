@@ -49,7 +49,13 @@ npm ci
 ## De1 Endpoints
 
 ### Verify if a domain is safe (used by Proxy Server):
-`GET /de1/verify/:proxyID?domain=<domainName>`
+`GET /de1/verify/:proxyID`
+
+Request Body:
+
+`domainName String: the domain to verify`
+
+`ipAddress String: the ip address of the device making to domain request`
 
 Response:
 
@@ -72,6 +78,8 @@ Request Body:
 `listType String: the list the domain belongs to`
 
 `domainName String: the name of the domain being logged`
+
+`ipAddress String: the ip address of the device making to domain request`
 
 ---
 ### Get recent domain request activity:
@@ -107,6 +115,7 @@ Response:
             "listType": "String",
             "domainName": "String",
             "timestamp": "Datetime",
+            "ipAddress": "String"
         },
         ...
     ],
@@ -199,6 +208,17 @@ Response:
 ---
 
 ## Domain Endpoints
+
+### Redirect user who attempts to visit unsafe domain:
+`GET /domain/unsafe/:status`
+
+Request:
+
+`status String: Malicious or Blacklisted, used to specify the message displayed to the user` 
+
+Response:
+
+`The domain you tried to access is <status>`
 
 
 ### Get a user's Blacklist or Whitelist:

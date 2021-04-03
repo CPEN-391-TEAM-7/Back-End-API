@@ -11,12 +11,13 @@ const User = require("../../models/user.model");
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
 /* 
-@route GET /domain/
-@desc Test
+@route GET /domain/unsafe/:status
+@desc Alert the user that the domain they attempted to access is unsafe
 */
 
-domainRoutes.route("/").get((req, res) => {
-    res.status(200).send("Contacted Domain Endpoint");
+domainRoutes.route("/unsafe/:status").get((req, res) => {
+    const status = req.params.status;
+    res.status(200).send(`The domain you tried to access is ${status}`);
 });
 
 /**
@@ -81,7 +82,7 @@ domainRoutes.route("/update").put(async(req, res) => {
         return;
     }
 
-    
+
 
     await User.findOne({ userID: userID }, async(err, _user) => {
         let _proxyID;
@@ -90,25 +91,25 @@ domainRoutes.route("/update").put(async(req, res) => {
             log.error("Error: " + err);
             response.msg = err;
 
-            res.json(response); return;
-        } 
-        else if (_user) {
+            res.json(response);
+            return;
+        } else if (_user) {
             _proxyID = _user.proxyID;
 
-            const query = { 
-                proxyID: _proxyID, 
-                domainName: domainName 
+            const query = {
+                proxyID: _proxyID,
+                domainName: domainName
             };
 
             const update = {
                 listType: listType,
             }
 
-            const options = {upsert: true, new: true}
-            
+            const options = { upsert: true, new: true }
+
             await Domain.findOneAndUpdate(query, update, options, (err, ret) => {
-                if(!err) {
-                    if(!ret) {
+                if (!err) {
+                    if (!ret) {
                         ret = new Domain({
                             domainID: "",
                             proxyID: _proxyID,
@@ -121,33 +122,36 @@ domainRoutes.route("/update").put(async(req, res) => {
                         ret.save(function(error) {
                             if (error) {
                                 response.msg = error;
-                                res.json(response); return;
+                                res.json(response);
+                                return;
                             }
                         });
                         response.status = "Success"
                         response.domain = ret;
                         response.msg = `Successfully added new domain to ${listType}`;
-                        res.json(response); return;
+                        res.json(response);
+                        return;
                     }
                     response.status = "Success"
                     response.domain = ret;
                     response.msg = `Successfully added domain to ${listType}`;
-        
-                    res.json(response); return;
-                }
-                else {
+
+                    res.json(response);
+                    return;
+                } else {
                     response.msg = err;
-                    res.json(response); return;
+                    res.json(response);
+                    return;
                 }
             });
 
-        } 
-        else {
+        } else {
             console.log("I didn't get the user");
             log.error("No such user exists");
             response.msg = "This user doesn't exist";
 
-            res.json(response); return;
+            res.json(response);
+            return;
         }
     });
 });
@@ -156,8 +160,8 @@ domainRoutes.route("/update").put(async(req, res) => {
  * @desc Fetch all domains in blacklist or whitelist
  */
 
-domainRoutes.route("/:listType/:userID").get( async (req, res) => {
-    const {userID, listType} = req.params;
+domainRoutes.route("/:listType/:userID").get(async(req, res) => {
+    const { userID, listType } = req.params;
 
     console.log(userID + listType);
 
@@ -175,15 +179,13 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
     }
 
 
-    await User.findOne({userID: userID}, async (err, user) => {
-        if(err){
+    await User.findOne({ userID: userID }, async(err, user) => {
+        if (err) {
             res.json({
                 status: 'Failed',
                 msg: err
             })
-        }
-
-        else if(user) {
+        } else if (user) {
 
             const findThis = {
                 listType: listType,
@@ -191,23 +193,21 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
             }
 
             await Domain.find(findThis)
-            .then(domains => {
-                res.json({
-                    status: "Success",
-                    msg: "Found",
-                    list: domains
+                .then(domains => {
+                    res.json({
+                        status: "Success",
+                        msg: "Found",
+                        list: domains
+                    })
                 })
-            })
-            .catch(err => {
-                res.json({
-                    status: "Failed",
-                    msg: err,
-                    list: []
-                })
-            });
-        }
-
-        else {
+                .catch(err => {
+                    res.json({
+                        status: "Failed",
+                        msg: err,
+                        list: []
+                    })
+                });
+        } else {
             res.json({
                 status: "Failed",
                 msg: "User doesn't exist.",
@@ -215,7 +215,7 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
         }
     })
 
-    
+
 })
 
 /**
@@ -223,7 +223,7 @@ domainRoutes.route("/:listType/:userID").get( async (req, res) => {
  * @desc gets all domain documents in the database.
  */
 
-domainRoutes.route("/all").get(async (req, res) => {
+domainRoutes.route("/all").get(async(req, res) => {
     //endpoint for accessing all users in database
     await Domain.find()
         .then((domains) => res.send(domains)) //Note here.
