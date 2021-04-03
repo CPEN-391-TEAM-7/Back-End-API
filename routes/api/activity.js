@@ -457,6 +457,33 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
     });
 });
 
+
+/**
+ * This endpoint returns all activities associated with the proxyID.
+ * @body proxyID
+ * @returns activities
+ * @returns status
+ */
+activityRoutes.route("/all").get((req, res) => {
+
+    const {proxyID} = req.body;
+
+    Activity.find({proxyID: proxyID})
+        .then((activities) => {
+            res.status(200).json({
+                "status": "Successful",
+                "activities": activities
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(400).json({
+                "status": "Failed",
+                "msg": err
+            })
+        });
+});
+
 /* 
  * @desc Create a new domain object in the DB
  * @param domainName: the domain 
