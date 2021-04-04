@@ -112,7 +112,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         res.status(400).send(err);
                         return;
 
-                    } else if (activities.length < 1) {
+                    } else if (!activities) {
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -141,7 +141,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         res.status(400).send(err);
                         return;
 
-                    } else if (activities.length < 1) {
+                    } else if (!activities) {
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
