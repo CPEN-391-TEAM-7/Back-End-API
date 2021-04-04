@@ -10,16 +10,6 @@ const User = require("../../models/user.model");
 
 const log = bunyan.createLogger({ name: "BackendAPI" });
 
-/* 
-@route GET /domain/unsafe/:status
-@desc Alert the user that the domain they attempted to access is unsafe
-*/
-
-domainRoutes.route("/unsafe/:status").get((req, res) => {
-    const status = req.params.status;
-    res.status(200).send(`The domain you tried to access is ${status}`);
-});
-
 /**
  * This is for testing purposes only. For now, might as well keep it.
  * @route POST /domain/add

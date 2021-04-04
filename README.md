@@ -62,7 +62,7 @@ Response:
 ```json
 {    
     "domain": "String",
-    "safe": "Number",   // 1 for safe, 0 for unsafe
+    "listType": "String",
 }
 ```
 
@@ -208,18 +208,6 @@ Response:
 ---
 
 ## Domain Endpoints
-
-### Redirect user who attempts to visit unsafe domain:
-`GET /domain/unsafe/:status`
-
-Request:
-
-`status String: Malicious or Blacklisted, used to specify the message displayed to the user` 
-
-Response:
-
-`The domain you tried to access is <status>`
-
 
 ### Get a user's Blacklist or Whitelist:
 `GET /domain/:listType/:userID`

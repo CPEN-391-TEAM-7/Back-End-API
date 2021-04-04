@@ -112,7 +112,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         res.status(400).send(err);
                         return;
 
-                    } else if (!activities) {
+                    } else if (activities.length < 1) {
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -141,7 +141,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         res.status(400).send(err);
                         return;
 
-                    } else if (!activities) {
+                    } else if (activities.length < 1) {
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -472,14 +472,14 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
  * @returns activities
  * @returns status
  */
-activityRoutes.route("/all").get(function(req, res) {
+activityRoutes.route("/all").get((req, res) => {
     console.log("/all");
 
-    const { proxyID } = req.body.proxyID;
+    const {proxyID} = req.body;
 
     console.log(proxyID.toString());
 
-    Activity.find({ proxyID: proxyID })
+    Activity.find({proxyID: proxyID})
         .then((activities) => {
             res.status(200).json({
                 "status": "Successful",
