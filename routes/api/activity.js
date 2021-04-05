@@ -22,12 +22,14 @@ const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefine
  * @return lastEndDate Date: the timestamp of the oldest domain request
  * @return count Integer:  the number of domain requests
  */
-activityRoutes.route("/recent/:userID").get(function(req, res) {
+activityRoutes.route("/recent/:userID").post(function(req, res) {
     const userID = req.params.userID;
     const startDate = req.body.startDate;
 
     console.log(`GET /activity/recent/${userID}`);
 
+    console.log(req.httpVersion);
+    console.log("!!! Here is the startDate " + startDate);
     // Set optional body params to null if not in request
     const endDate = req.body.endDate ? req.body.endDate : null;
     const limit = req.body.limit ? req.body.limit : null;
@@ -113,6 +115,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         return;
 
                     } else if (activities.length < 1) {
+			console.log("Here is the startDate: " + startDate);
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -142,6 +145,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
                         return;
 
                     } else if (activities.length < 1) {
+                        console.log("Here is the startDate: " + startDate);
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -176,7 +180,7 @@ activityRoutes.route("/recent/:userID").get(function(req, res) {
  * @body listTypes Array[String]?: (optional) filter domains by list types
  * @return domains Array: an arrary of domains
  */
-activityRoutes.route("/allTimeMostRequested/:userID").get(function(req, res) {
+activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
     const userID = req.params.userID;
     const limit = req.body.limit;
 
@@ -278,7 +282,7 @@ activityRoutes.route("/allTimeMostRequested/:userID").get(function(req, res) {
  * @return lastEndDate Date: the timestamp of the oldest domain request
  * @return count Integer:  the number of domain requests
  */
-activityRoutes.route("/mostRequested/:userID").get(function(req, res) {
+activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
     const userID = req.params.userID;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
