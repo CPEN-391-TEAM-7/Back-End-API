@@ -115,7 +115,7 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
                         return;
 
                     } else if (activities.length < 1) {
-			console.log("Here is the startDate: " + startDate);
+                        console.log("Here is the startDate: " + startDate);
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -418,6 +418,8 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
     const domainName = req.body.domainName;
     const ipAddress = req.body.ipAddress;
 
+    console.log("Domain Name: ", domainName, "IP Adress: ", ipAddress);
+
     let domainID;
 
     console.log(`POST /activity/log/${proxyID}`);
@@ -455,7 +457,7 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
             ipAddress: ipAddress
         });
 
-       console.log("Create Activity: ", newActivity);
+        console.log("Create Activity: ", newActivity);
 
         newActivity
             .save()
@@ -479,11 +481,11 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
 activityRoutes.route("/all").get((req, res) => {
     console.log("/all");
 
-    const {proxyID} = req.body;
+    const { proxyID } = req.body;
 
     console.log(proxyID.toString());
 
-    Activity.find({proxyID: proxyID})
+    Activity.find({ proxyID: proxyID })
         .then((activities) => {
             res.status(200).json({
                 "status": "Successful",
