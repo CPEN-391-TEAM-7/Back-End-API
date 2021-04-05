@@ -13,7 +13,7 @@ proxyID = "373be0e6-ccb4-4d0e-ac58-f6e6da75e8a0"
 
 validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"]
 
-ipAdresses = ["124.456.83.12", "184.255.73.47", "43.89.33.111", "211.33.60.246", "97.23.45.201"]
+ipAdresses = ["124.156.83.12", "184.255.73.47", "43.89.33.111", "211.33.60.246", "97.23.45.201"]
 
 postBody = {
     "listType": "Whitelist",
