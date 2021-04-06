@@ -404,8 +404,10 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
                     mostRequested.push(object);
                 });
 
+                let response = { mostRequested };
+
                 console.log("Sending most requested domains");
-                res.status(200).send(mostRequested);
+                res.status(200).send(response);
             });
         }
 
