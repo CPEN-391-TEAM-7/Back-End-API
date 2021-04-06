@@ -1,5 +1,6 @@
 const express = require("express");
 const { v4: uuidv4 } = require('uuid');
+const de1Helper = require('../helper/de1Helper');
 
 const activityRoutes = express.Router();
 
@@ -442,7 +443,7 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
 
         } else if (!domain) {
             // Create new domain object if one does not exist
-            domainID = await createDomain(domainName, listType, proxyID);
+            domainID = de1Helper.createDomain(domainName, listType, proxyID);
 
         } else {
             // Increment the number of accesses
@@ -510,33 +511,5 @@ activityRoutes.route("/all").get((req, res) => {
             })
         });
 });
-
-/* 
- * @desc Create a new domain object in the DB
- * @param domainName: the domain 
- * @param listType: the list the domain will be put on
- * @param proxy: the proxy's ID
- * @return The ID of the domain object
- */
-async function createDomain(domainName, listType, proxy) {
-    console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
-    const id = uuidv4();
-
-    const newDomain = new Domain({
-        domainID: id,
-        proxyID: proxy,
-        domainName: domainName,
-        listType: listType,
-        num_of_accesses: 1,
-    });
-
-    await newDomain
-        .save()
-        .catch((err) => {
-            console.log("Error creating domain:", err);
-        });
-
-    return id;
-}
 
 module.exports = activityRoutes;
