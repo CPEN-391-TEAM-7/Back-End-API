@@ -4,7 +4,8 @@
     "description": "Backend Endpoints",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon server.js"
+        "start": "nodemon server.js",
+        "test": "mocha"
     },
     "repository": {
         "type": "git",
@@ -24,6 +25,7 @@
         "dgram": "^1.0.1",
         "express": "^4.17.1",
         "lodash": "^4.17.21",
+        "mocha": "^8.3.2",
         "mongoose": "^5.11.15",
         "url": "^0.11.0",
         "uuid": "^8.3.2"

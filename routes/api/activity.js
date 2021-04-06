@@ -1,6 +1,5 @@
 const express = require("express");
 const { v4: uuidv4 } = require('uuid');
-const de1 = require("./de1");
 
 const activityRoutes = express.Router();
 
