@@ -7,6 +7,7 @@ const activityRoutes = express.Router();
 const Activity = require("../../models/activity.model");
 const Domain = require("../../models/domain.model");
 const User = require("../../models/user.model");
+const { forEach } = require("lodash");
 
 const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
@@ -372,7 +373,6 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
 
                 // Count number of domain requests per domain and assign list type
                 for (let i = 0; i < activities.length; i++) {
-                    console.log(activities[i]);
                     const domainName = activities[i].domainName;
                     const list = activities[i].listType;
                     domainsCount[domainName] = domainsCount[domainName] ? { count: domainsCount[domainName].count + 1, listType: domainsCount[domainName].listType } : { count: 1, listType: list };
@@ -393,8 +393,19 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
                     domains = domains.slice(0, limit);
                 }
 
+                let mostRequested = [];
+
+                domains.forEach((domain) => {
+                    let object = {
+                        "domainName": domain[0],
+                        "count": domain[1].count,
+                        "listType": domain[1].listType
+                    };
+                    mostRequested.push(object);
+                });
+
                 console.log("Sending most requested domains");
-                res.status(200).send(domains);
+                res.status(200).send(mostRequested);
             });
         }
 
