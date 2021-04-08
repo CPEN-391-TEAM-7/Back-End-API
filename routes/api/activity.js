@@ -12,7 +12,7 @@ const { forEach } = require("lodash");
 const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
 /** 
- * @route GET /activity/recent/:userID
+ * @route POST /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request
  * @body startDate Date: datetime to start querying backwards from (inclusive)
@@ -174,7 +174,7 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
 });
 
 /** 
- * @route GET /activity/allTimeMostRequested/:userID
+ * @route POST /activity/allTimeMostRequested/:userID
  * @desc Get the all time most visited domains
  * @param userID String: the admin user sending the request
  * @body limit Integer: how many domains to return
@@ -272,7 +272,7 @@ activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
 });
 
 /** 
- * @route GET /activity/recent/:userID
+ * @route POST /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request
  * @body startDate Date: datetime to start querying backwards from (inclusive)

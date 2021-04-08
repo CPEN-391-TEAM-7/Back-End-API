@@ -1,35 +1,31 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
-const bunyan = require("bunyan");
-
-const app = express();
-const PORT = 4000;
-
-const log = bunyan.createLogger({ name: "BackendAPI" });
+const mongooseConnect = require("./mongooseConnect");
 
 const user = require("./routes/api/user");
 const domain = require("./routes/api/domain");
 const activity = require("./routes/api/activity");
 const de1 = require("./routes/api/de1");
 
-app.use(cors());
-app.use(bodyParser.json());
+const server = express();
+const PORT = 4000;
 
-mongoose.connect("mongodb://127.0.0.1:27017/Securify", { useNewUrlParser: true });
-mongoose.set('useFindAndModify', false);
-const connection = mongoose.connection;
+server.use(cors());
+server.use(bodyParser.json());
 
-connection.once("open", function() {
-    console.log("MongoDB database connection established successfully");
-});
+server.use("/user", user);
+server.use("/domain", domain);
+server.use("/activity", activity);
+server.use("/de1", de1);
 
-app.use("/user", user);
-app.use("/domain", domain);
-app.use("/activity", activity);
-app.use("/de1", de1);
+mongooseConnect.connect("Securify")
+    .on('error', (err) =>
+        console.log("Cannot connect to DB: ", err)
+    );
 
-app.listen(PORT, function() {
+server.listen(PORT, function() {
     console.log("Server is running on Port: " + PORT);
 });
+
+module.exports = server;
