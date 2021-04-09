@@ -425,7 +425,7 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
  * @body listType String: the list the domain belongs to 
  * @body domainName String: the name of the domain being logged
  */
-activityRoutes.route("/log/:proxyID").post(async(req, res) => {
+activityRoutes.post("/log/:proxyID", async(req, res) => {
     const proxyID = req.params.proxyID;
     const listType = req.body.listType;
     const domainName = req.body.domainName;
