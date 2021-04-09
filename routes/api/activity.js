@@ -425,7 +425,7 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
  * @body listType String: the list the domain belongs to 
  * @body domainName String: the name of the domain being logged
  */
-activityRoutes.post("/log/:proxyID", async(req, res) => {
+activityRoutes.post("/log/:proxyID", function(req, res) {
     const proxyID = req.params.proxyID;
     const listType = req.body.listType;
     const domainName = req.body.domainName;
@@ -437,7 +437,7 @@ activityRoutes.post("/log/:proxyID", async(req, res) => {
 
     console.log(`POST /activity/log/${proxyID}`);
 
-    await Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, async(err, domain) => {
+    Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, function(err, domain) {
         if (err) {
             console.log("Error:", err);
             res.status(400).send(err);
@@ -445,7 +445,7 @@ activityRoutes.post("/log/:proxyID", async(req, res) => {
 
         } else if (!domain) {
             // Create new domain object if one does not exist
-            domainID = await createDomain(domainName, listType, proxyID);
+            domainID = createDomain(domainName, listType, proxyID);
 
         } else {
             // Increment the number of accesses
@@ -521,7 +521,7 @@ activityRoutes.route("/all").get((req, res) => {
  * @param proxy: the proxy's ID
  * @return The ID of the domain object
  */
-async function createDomain(domainName, listType, proxy) {
+function createDomain(domainName, listType, proxy) {
     console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
     const id = uuidv4();
 
@@ -533,7 +533,7 @@ async function createDomain(domainName, listType, proxy) {
         num_of_accesses: 1,
     });
 
-    await newDomain
+    newDomain
         .save()
         .catch((err) => {
             console.log("Error creating domain:", err);
