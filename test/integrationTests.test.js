@@ -20,37 +20,37 @@ afterAll(async(done) => {
 describe('POST: /log/:proxyID ', () => {
 
     test("valid log, new domain", async(done) => {
-        let data = { listType: 'Whitelist', domainName: 'google.ca', ipAddress: '123.45.32.188' };
+        let data = { data: { listType: 'Whitelist', domainName: 'google.ca', ipAddress: '123.45.32.188' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(202, done);
     });
 
     test("valid log, domain exists", async(done) => {
-        let data = { listType: 'Whitelist', domainName: 'google.ca', ipAddress: '123.45.32.188' };
+        let data = { data: { listType: 'Whitelist', domainName: 'google.ca', ipAddress: '123.45.32.188' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(202, done);
     });
 
     test("invalid list type", async(done) => {
-        let data = { listType: 'witelist', domainName: 'google.ca', ipAddress: '123.45.32.188' };
+        let data = { data: { listType: 'witelist', domainName: 'google.ca', ipAddress: '123.45.32.188' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(400, done);
     });
 
     test("no list type", async(done) => {
-        let data = { domainName: 'google.ca', ipAddress: '123.45.32.188' };
+        let data = { data: { domainName: 'google.ca', ipAddress: '123.45.32.188' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(400, done);
     });
 
     test("no domain", async(done) => {
-        let data = { listType: 'Whitelist', ipAddress: '123.45.32.188' };
+        let data = { data: { listType: 'Whitelist', ipAddress: '123.45.32.188' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(400, done);
     });
 
     test("no ip address", async(done) => {
-        let data = { listType: 'Whitelist', domainName: 'google.ca' };
+        let data = { data: { listType: 'Whitelist', domainName: 'google.ca' } };
         request(server).post("/activity/log/123456789").set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data)).expect(400, done);
     });

@@ -427,15 +427,14 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
  */
 activityRoutes.post("/log/:proxyID", function(req, res) {
     const proxyID = req.params.proxyID;
-    const listType = req.body.listType;
-    const domainName = req.body.domainName;
-    const ipAddress = req.body.ipAddress;
-
-    console.log("Domain Name: ", domainName, "IP Adress: ", ipAddress);
+    const listType = req.body.data.listType;
+    const domainName = req.body.data.domainName;
+    const ipAddress = req.body.data.ipAddress;
 
     let domainID;
 
     console.log(`POST /activity/log/${proxyID}`);
+    console.log("Domain Name: ", domainName, "IP Adress: ", ipAddress);
 
     Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, function(err, domain) {
         if (err) {
