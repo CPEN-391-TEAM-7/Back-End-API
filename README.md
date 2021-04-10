@@ -204,23 +204,16 @@ Example Body:
 Response:
 
 ```json
-[
-    [
-        "<domainName>",
+{
+    "mostRequested": [
         {
-            "count": "Integer",
-            "listType": "String"
+            "domainName": "String",
+            "listType": "String",
+            "count": "Integer"
         },
-    ],
-    [
-        "<domainName>",
-        {
-            "count": "Integer",
-            "listType": "String"
-        },
+        ...
     ]
-    ...
-]
+}
 ```
 
 ---

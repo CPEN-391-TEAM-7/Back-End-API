@@ -404,8 +404,10 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
                     mostRequested.push(object);
                 });
 
+                let response = { mostRequested };
+
                 console.log("Sending most requested domains");
-                res.status(200).send(mostRequested);
+                res.status(200).send(response);
             });
         }
 
@@ -423,7 +425,7 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
  * @body listType String: the list the domain belongs to 
  * @body domainName String: the name of the domain being logged
  */
-activityRoutes.route("/log/:proxyID").post(async(req, res) => {
+activityRoutes.post("/log/:proxyID", function(req, res) {
     const proxyID = req.params.proxyID;
     const listType = req.body.listType;
     const domainName = req.body.domainName;
@@ -435,7 +437,7 @@ activityRoutes.route("/log/:proxyID").post(async(req, res) => {
 
     console.log(`POST /activity/log/${proxyID}`);
 
-    await Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, async(err, domain) => {
+    Domain.findOne({ "proxyID": proxyID, "domainName": domainName }, function(err, domain) {
         if (err) {
             console.log("Error:", err);
             res.status(400).send(err);
