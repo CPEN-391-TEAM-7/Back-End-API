@@ -19,7 +19,7 @@ server.use("/domain", domain);
 server.use("/activity", activity);
 server.use("/de1", de1);
 
-mongooseConnect.connect("Securify")
+mongooseConnect.connect()
     .on('error', (err) =>
         console.log("Cannot connect to DB: ", err)
     );

@@ -92,12 +92,19 @@ function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType)
 
     const update = {
         listType: domainListType,
-        $inc: {
-            num_of_accesses: 1
-        }
     };
 
-    Domain.findOneAndUpdate(filter, update)
+    Domain.findOneAndUpdate(filter, update, function(err, domain) {
+            // Increment the number of accesses
+            let count = domain.num_of_accesses;
+            domain.num_of_accesses = count + 1;
+
+            domain
+                .save()
+                .catch((err) => {
+                    console.log("Error updating domain:", err);
+                });
+        })
         .catch((err) => {
             console.log("Error updating domain:", err);
         });

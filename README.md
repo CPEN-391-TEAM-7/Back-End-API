@@ -44,14 +44,13 @@ npm ci
 
 ### Test
 
+Only run tests locally because it will affect the database
+
 Inside the root directory run:
 
 ```
 npm test
 ```
-
-Note: there will be an error message after the tests finish running that you can ignore: ```Jest has detected the following 1 open handle potentially keeping Jest from exiting:```
-
 
 If there were any new libraries installed you my need to run:
 
