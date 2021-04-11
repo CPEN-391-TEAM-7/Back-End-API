@@ -441,3 +441,59 @@ describe('POST: /activity/recent/:userID', () => {
     });
 
 });
+
+/*
+ * DE1 Tests
+ * Note: these are commented out because they do not work unless the DE1 is turned on
+ */
+
+// describe('POST: /activity/recent/:userID', () => {
+
+//     test("valid request, existing domain", async(done) => {
+//         let data = { domainName: "google.ca", ipAddress: "123.67.32.144" };
+//         request(server).post(`/de1/verify/${newUserProxyID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+//             .send(JSON.stringify(data))
+//             .expect(200).then((response) => {
+//                 expect(response.body.domain).to.equal("google.ca");
+//                 expect(response.body.listType).to.equal("Whitelist");
+//                 done();
+//             });
+//     });
+
+//     test("valid request, new domain", async(done) => {
+//         let data = { domainName: "twitter.com", ipAddress: "123.67.32.144" };
+//         request(server).post(`/de1/verify/${newUserProxyID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+//             .send(JSON.stringify(data))
+//             .expect(200).then((response) => {
+//                 expect(response.body.domain).to.equal("twitter.com");
+//                 expect(response.body.listType).to.equal("Safe");
+//                 done();
+//             });
+//     });
+
+//     test("valid request, repeat domain", async(done) => {
+//         let data = { domainName: "twitter.com", ipAddress: "123.67.32.144" };
+//         request(server).post(`/de1/verify/${newUserProxyID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+//             .send(JSON.stringify(data))
+//             .expect(200).then((response) => {
+//                 expect(response.body.domain).to.equal("twitter.com");
+//                 expect(response.body.listType).to.equal("Safe");
+//                 done();
+//             });
+//     });
+
+//     test("no domain", async(done) => {
+//         let data = { ipAddress: "123.67.32.144" };
+//         request(server).post(`/de1/verify/${newUserProxyID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+//             .send(JSON.stringify(data))
+//             .expect(400, done);
+//     });
+
+//     test("no ip address", async(done) => {
+//         let data = { domainName: "twitter.com" };
+//         request(server).post(`/de1/verify/${newUserProxyID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+//             .send(JSON.stringify(data))
+//             .expect(400, done);
+//     });
+
+// });

@@ -25,6 +25,18 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
 
     console.log(`GET /de1/verify/${proxyID}, ${domainName}, ${ipAddress}`);
 
+    // Validate inputs
+    if (!domainName) {
+        res.status(400).send("Error, no domainName");
+        return;
+    } else if (!ipAddress) {
+        res.status(400).send("Error, no ipAddress");
+        return;
+    } else if (!proxyID) {
+        res.status(400).send("Error, no proxyID");
+        return;
+    }
+
     const response = {};
 
     // Check if a domain object already exists for this domain name and proxyID
