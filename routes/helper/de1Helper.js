@@ -58,6 +58,18 @@ function createDomain(domainName, listType, proxy) {
     console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
     const id = uuidv4();
 
+    // Validate inputs
+    if (!domainName) {
+        console.log("Error, no domainName");
+        return null;
+    } else if (!listType) {
+        console.log("Error, no listType");
+        return null;
+    } else if (!proxy) {
+        console.log("Error, no proxyID");
+        return null;
+    }
+
     const newDomain = new Domain({
         domainID: id,
         proxyID: proxy,
