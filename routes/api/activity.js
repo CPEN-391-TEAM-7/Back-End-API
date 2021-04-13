@@ -473,6 +473,7 @@ activityRoutes.post("/log/:proxyID", function(req, res) {
         return;
     }
 
+
     let domainID;
 
     console.log(`POST /activity/log/${proxyID}`);
