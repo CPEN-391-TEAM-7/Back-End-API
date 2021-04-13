@@ -18,6 +18,7 @@ const log = bunyan.createLogger({ name: "BackendAPI" });
 userRoutes.route("/").get(function(req, res) {
     res.status(200).send("Contacted User Endpoint");
 });
+
 /**
  * @route POST /user/register
  * @desc endpoint for adding a new user document in the database.
@@ -29,8 +30,8 @@ userRoutes.route("/").get(function(req, res) {
  * }
  */
 
-userRoutes.route("/register").post(async (req, res) => {
-    const {userID, name} = req.body;
+userRoutes.route("/register").post(async(req, res) => {
+    const { userID, name } = req.body;
 
     const newUser = new User({
         userID: userID,
@@ -38,21 +39,19 @@ userRoutes.route("/register").post(async (req, res) => {
         proxyID: uuidv4(),
     });
 
-    await User.findOne({ userID: userID}, async(err, user) => {
-        if(err) {
+    await User.findOne({ userID: userID }, async(err, user) => {
+        if (err) {
             log.error("Error: " + err);
             res.status("400").json({
                 "msg": "Unknown error",
                 "error": err
             })
-        }
-        else if(user) {
+        } else if (user) {
             res.status("409").json({
                 "msg": "User exsits",
                 "user": user
             })
-        }
-        else {
+        } else {
             newUser.save()
                 .then(result => {
                     res.status("200").json({

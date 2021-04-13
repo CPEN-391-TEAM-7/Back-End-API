@@ -1,14 +1,13 @@
 const express = require("express");
 const dgram = require("dgram");
 const { v4: uuidv4 } = require('uuid');
+const de1Helper = require('../helper/de1Helper');
 
 const UDP_PORT = 8082;
 
 const de1Routes = express.Router();
 
-const Activity = require('../../models/activity.model');
 const Domain = require('../../models/domain.model');
-const User = require('../../models/user.model');
 
 /* 
  * @route GET /de1/verify/:proxyID
@@ -25,6 +24,18 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
     const proxyID = req.params.proxyID;
 
     console.log(`GET /de1/verify/${proxyID}, ${domainName}, ${ipAddress}`);
+
+    // Validate inputs
+    if (!domainName) {
+        res.status(400).send("Error, no domainName");
+        return;
+    } else if (!ipAddress) {
+        res.status(400).send("Error, no ipAddress");
+        return;
+    } else if (!proxyID) {
+        res.status(400).send("Error, no proxyID");
+        return;
+    }
 
     const response = {};
 
@@ -108,7 +119,7 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
                 console.log(`Received ${msg.length} bytes from ${info.address}:${info.port}`);
                 socket.close();
 
-                domainStatus = getDomainStatus(msg.toString());
+                domainStatus = de1Helper.getDomainStatus(msg.toString());
 
                 // Set the response to proxy based off response from DE1
                 response.domain = domainStatus.domain;
@@ -134,15 +145,15 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
                 } else {
                     // If a new domain create an object for it in the DB
                     if (newDomain) {
-                        domainID = createDomain(domainName, domainListType, proxyID);
+                        domainID = de1Helper.createDomain(domainName, domainListType, proxyID);
 
                         // Update the object's list type if needed and increment number of accesses
                     } else {
-                        updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
+                        de1Helper.updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
                     }
 
                     // Record the domain request
-                    createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
+                    de1Helper.createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
 
                     console.log("Send");
 
@@ -153,10 +164,10 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
             // Else, no need to contact DE1 to determine list type
         } else {
             // Update the object's list type if needed and increment number of accesses
-            updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
+            de1Helper.updateListTypeAndIncrement(domainID, domainName, proxyID, domainListType);
 
             // Record the domain request
-            createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
+            de1Helper.createActivityRecord(domainID, domainName, proxyID, domainListType, ipAddress);
 
             console.log("Send");
 
@@ -168,134 +179,5 @@ de1Routes.get('/verify/:proxyID', function(req, res) {
         res.status(400).send(err);
     });
 });
-
-/* 
- * @desc Get the status of a domain from the DE1
- * @param domainName: the domain to verify
- * @return The formatted reponse message
- */
-function getDomainStatus(domainStatus) {
-    console.log(`getDomainStatus(${domainStatus})`);
-
-    const domainResponse = {};
-    let status = "";
-
-    if (domainStatus) {
-        console.log("DE1: ", domainStatus);
-        // DE1 response in the format: "domain.com1" needs to be separated
-        domainStatus = domainStatus.trim(); // trim white space and new lines
-        domainResponse.domain = domainStatus.substr(0, domainStatus.length - 1);
-        status = domainStatus.substr(domainStatus.length - 1);
-
-    } else {
-        domainResponse.domain = "";
-    }
-
-    // Set response to return list type for activity logging and updating/creating domain objects
-    if (status === "0") {
-        domainResponse.listType = "Safe";
-
-    } else if (status === "1") {
-        domainResponse.listType = "Malicious";
-
-    } else if (status === "3" || status === "4") {
-        console.log("Domain error status:", status);
-        domainResponse.listType = "Undefined";
-
-    } else if (status === "5" || status === "6") {
-        console.log("DE1 error status:", status);
-        domainResponse.listType = "";
-
-    } else {
-        domainResponse.listType = "";
-    }
-
-    return domainResponse;
-}
-
-/* 
- * @desc Create a new domain object in the DB
- * @param domainName: the domain 
- * @param listType: the list the domain will be put on
- * @param proxy: the proxy's ID
- * @return The ID of the domain object
- */
-function createDomain(domainName, listType, proxy) {
-    console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
-    const id = uuidv4();
-
-    const newDomain = new Domain({
-        domainID: id,
-        proxyID: proxy,
-        domainName: domainName,
-        listType: listType,
-        num_of_accesses: 1,
-    });
-
-    newDomain
-        .save()
-        .catch((err) => {
-            console.log("Error creating domain:", err);
-        });
-
-    return id;
-}
-
-/* 
- * @desc Update the domain's list type and increment number of accesses
- * @param domainID: the domain's ID
- * @param domainName: the domain 
- * @param domainListType: the list to update the domain to
- * @param proxy: the proxy's ID
- */
-function updateListTypeAndIncrement(domainID, domainName, proxy, domainListType) {
-    console.log(`updateListTypeAndIncrement(${domainID}, ${domainName}, ${proxy}, ${domainListType})`);
-    const filter = {
-        domainID: domainID,
-        proxyID: proxy,
-        domainName: domainName
-    }
-
-    const update = {
-        listType: domainListType,
-        $inc: {
-            num_of_accesses: 1
-        }
-    };
-
-    Domain.findOneAndUpdate(filter, update)
-        .catch((err) => {
-            console.log("Error updating domain:", err);
-        });
-}
-
-/* 
- * @desc Create a new activity based on the domain request
- * @param domainID: the domain's ID
- * @param domainName: the domain 
- * @param domainListType: the list to update the domain to
- * @param proxy: the proxy's ID
- */
-function createActivityRecord(domainID, domainName, proxy, domainListType, ipAddress) {
-    console.log(`createActivityRecord(${domainID}, ${domainName}, ${proxy}, ${domainListType}, ${ipAddress})`);
-    const id = uuidv4();
-    const now = Date.now();
-
-    const newActivity = new Activity({
-        activityID: id,
-        domainID: domainID,
-        domainName: domainName,
-        proxyID: proxy,
-        timestamp: now,
-        listType: domainListType,
-        ipAddress: ipAddress
-    });
-
-    newActivity
-        .save()
-        .catch((err) => {
-            console.log("Error creating activity record:", err);
-        });
-}
 
 module.exports = de1Routes;

@@ -1,18 +1,17 @@
 const express = require("express");
 const { v4: uuidv4 } = require('uuid');
-const de1 = require("./de1");
+const de1Helper = require('../helper/de1Helper');
 
 const activityRoutes = express.Router();
 
 const Activity = require("../../models/activity.model");
 const Domain = require("../../models/domain.model");
 const User = require("../../models/user.model");
-const { forEach } = require("lodash");
 
 const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefined"];
 
 /** 
- * @route GET /activity/recent/:userID
+ * @route POST /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request
  * @body startDate Date: datetime to start querying backwards from (inclusive)
@@ -25,14 +24,21 @@ const validListTypes = ["Whitelist", "Blacklist", "Safe", "Malicious", "Undefine
  */
 activityRoutes.route("/recent/:userID").post(function(req, res) {
     const userID = req.params.userID;
-    const startDate = req.body.startDate;
+    const startDate = new Date(req.body.startDate);
+
+    // Validate inputs
+    if (!userID) {
+        res.status(400).send("Error, no userID");
+        return;
+    } else if (!startDate) {
+        res.status(400).send("Error, no startDate");
+        return;
+    }
 
     console.log(`GET /activity/recent/${userID}`);
 
-    console.log(req.httpVersion);
-    console.log("!!! Here is the startDate " + startDate);
     // Set optional body params to null if not in request
-    const endDate = req.body.endDate ? req.body.endDate : null;
+    const endDate = req.body.endDate ? new Date(req.body.endDate) : null;
     const limit = req.body.limit ? req.body.limit : null;
     const listTypes = req.body.listTypes ? req.body.listTypes : null;
 
@@ -73,7 +79,7 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
                 proxyID: proxyID
             };
 
-            // Set activity filter based on start and end date params
+            // Set activity filter based on startDate and endDate params
             if (endDate) {
                 dateFilter = {
                     "$gte": endDate,
@@ -116,7 +122,6 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
                         return;
 
                     } else if (activities.length < 1) {
-                        console.log("Here is the startDate: " + startDate);
                         console.log("Error, activities not found");
                         res.status(404).send("Error, activities not found");
                         return;
@@ -174,7 +179,7 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
 });
 
 /** 
- * @route GET /activity/allTimeMostRequested/:userID
+ * @route POST /activity/allTimeMostRequested/:userID
  * @desc Get the all time most visited domains
  * @param userID String: the admin user sending the request
  * @body limit Integer: how many domains to return
@@ -184,6 +189,12 @@ activityRoutes.route("/recent/:userID").post(function(req, res) {
 activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
     const userID = req.params.userID;
     const limit = req.body.limit;
+
+    // Validate inputs
+    if (!userID) {
+        res.status(400).send("Error, no userID");
+        return;
+    }
 
     console.log(`GET /activity/allTimeMostRequested/${userID}`);
 
@@ -195,7 +206,7 @@ activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
     };
 
     // Verify limit is a positive number
-    if (limit < 1) {
+    if (!limit || limit < 1) {
         console.log(("Error, limit must be at least 1"));
         res.status(400).send("Error, limit must be at least 1");
         return;
@@ -272,7 +283,7 @@ activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
 });
 
 /** 
- * @route GET /activity/recent/:userID
+ * @route POST /activity/recent/:userID
  * @desc Get the most recent domain requests
  * @param userID String: the admin user sending the request
  * @body startDate Date: datetime to start querying backwards from (inclusive)
@@ -285,8 +296,20 @@ activityRoutes.route("/allTimeMostRequested/:userID").post(function(req, res) {
  */
 activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
     const userID = req.params.userID;
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    const startDate = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
+
+    // Validate inputs
+    if (!userID) {
+        res.status(400).send("Error, no userID");
+        return;
+    } else if (!startDate) {
+        res.status(400).send("Error, no startDate");
+        return;
+    } else if (!endDate) {
+        res.status(400).send("Error, no endDate");
+        return;
+    }
 
     console.log(`GET /activity/mostRequested/${userID}`);
 
@@ -424,12 +447,32 @@ activityRoutes.route("/mostRequested/:userID").post(function(req, res) {
  * @param proxyID String: the proxy sending the request
  * @body listType String: the list the domain belongs to 
  * @body domainName String: the name of the domain being logged
+ * @body ipAddress String: the ip address of the device making the domain request
  */
 activityRoutes.post("/log/:proxyID", function(req, res) {
     const proxyID = req.params.proxyID;
     const listType = req.body.data.listType;
     const domainName = req.body.data.domainName;
     const ipAddress = req.body.data.ipAddress;
+
+    // Validate inputs
+    if (!listType) {
+        res.status(400).send("Error, no list type");
+        return;
+    } else if (!domainName) {
+        res.status(400).send("Error, no domain");
+        return;
+    } else if (!ipAddress) {
+        res.status(400).send("Error, no ip address");
+        return;
+    } else if (!proxyID) {
+        res.status(400).send("Error, no proxy ID");
+        return;
+    } else if (!validListTypes.includes(listType)) {
+        res.status(400).send("Error, invalid list type");
+        return;
+    }
+
 
     let domainID;
 
@@ -444,15 +487,18 @@ activityRoutes.post("/log/:proxyID", function(req, res) {
 
         } else if (!domain) {
             // Create new domain object if one does not exist
-            domainID = createDomain(domainName, listType, proxyID);
+            domainID = de1Helper.createDomain(domainName, listType, proxyID);
 
         } else {
             // Increment the number of accesses
-            domain.update({
-                $inc: {
-                    num_of_accesses: 1
-                }
-            });
+            let count = domain.num_of_accesses;
+            domain.num_of_accesses = count + 1;
+
+            domain
+                .save()
+                .catch((err) => {
+                    console.log("Error creating activity record:", err);
+                });
         }
 
         const id = uuidv4();
@@ -512,33 +558,5 @@ activityRoutes.route("/all").get((req, res) => {
             })
         });
 });
-
-/* 
- * @desc Create a new domain object in the DB
- * @param domainName: the domain 
- * @param listType: the list the domain will be put on
- * @param proxy: the proxy's ID
- * @return The ID of the domain object
- */
-function createDomain(domainName, listType, proxy) {
-    console.log(`createDomain(${domainName}, ${listType}, ${proxy})`);
-    const id = uuidv4();
-
-    const newDomain = new Domain({
-        domainID: id,
-        proxyID: proxy,
-        domainName: domainName,
-        listType: listType,
-        num_of_accesses: 1,
-    });
-
-    newDomain
-        .save()
-        .catch((err) => {
-            console.log("Error creating domain:", err);
-        });
-
-    return id;
-}
 
 module.exports = activityRoutes;

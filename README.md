@@ -28,9 +28,9 @@ Inside the mongo interface:
 use Securify
 ```
 
-### Use
+### Run
 
-Inside the cloned directory run:
+Inside the root directory run:
 
 ```
 npm start
@@ -41,6 +41,23 @@ If there were any new libraries installed you my need to run
 ```
 npm ci
 ```
+
+### Test
+
+Only run tests locally because it will affect the database
+
+Inside the root directory run:
+
+```
+npm test
+```
+
+If there were any new libraries installed you my need to run:
+
+```
+npm ci
+```
+
 
 # Endpoints
 
