@@ -48,6 +48,87 @@ describe('POST: /user/register', () => {
  * Domain Tests
  */
 
+describe('PUT: /domain/update', () => {
+
+    test("Updating a new domain's listType", async(done) => {
+        let data = { userID: newUserID, listType: "Whitelist", domainName: "facebook.com" };
+        request(server).put("/domain/update").set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.status).to.equal("Success")
+                expect(response.body.domain.domainName).to.equal("facebook.com")
+                done();
+            });
+    });
+
+    test("Updating a domain's listType", async(done) => {
+        let data = { userID: newUserID, listType: "Blacklist", domainName: "facebook.com" };
+        request(server).put("/domain/update").set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.status).to.equal("Success")
+                expect(response.body.domain.domainName).to.equal("facebook.com")
+                expect(response.body.msg).to.equal("Successfully added domain to Blacklist")
+                done();
+            });
+    });
+
+    test("Updating a domain's listType to an invalid", async(done) => {
+        let data = { userID: newUserID, listType: "invalid", domainName: "facebook.com" };
+        request(server).put("/domain/update").set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.msg).to.equal("invalid is not a valid listType")
+                done();
+            });
+    });
+});
+
+describe('POST: /domain/add', () => {
+
+    let listType = "Whitelist"
+    let userID = newUserID
+
+    test("Adding a domain", async(done) => {
+        let data = {domainID: "ascrafoaivnasf", proxyID: newUserProxyID, url: "cpen391.com"};
+        request(server).post(`/domain/add`).set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.domainID).to.equal("ascrafoaivnasf")
+                expect(response.body.domainName).to.equal("cpen391.com")
+                done();
+            });
+    });
+
+    test("Adding a domain", async(done) => {
+        let data = {domainID: "akrhgka", proxyID: newUserProxyID, url: "team7.com"};
+        request(server).post(`/domain/add`).set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.domainID).to.equal("akrhgka")
+                expect(response.body.domainName).to.equal("team7.com")
+                done();
+            });
+    });
+});
+
+
+describe('GET: /domain/:listType/:userID', () => {
+
+    let listType = "Whitelist"
+    let userID = newUserID
+
+    test("Getting a whitelist", async(done) => {
+        let data = {};
+        request(server).get(`/domain/${listType}/${userID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
+            .send(JSON.stringify(data))
+            .expect(200).then((response) => {
+                expect(response.body.status).to.equal("Failed")
+                done();
+            });
+    });
+});
+
 /*
  * Activity Tests
  */
@@ -320,7 +401,7 @@ describe('POST: /activity/mostRequested/:userID', () => {
         let data = { endDate: "2021-03-01T10:11:36.251Z", startDate: "2021-04-01T10:11:36.251Z" };
         request(server).post(`/activity/mostRequested/${newUserID}`).set({ Accept: "application/json", "Content-Type": "application/json" })
             .send(JSON.stringify(data))
-            .expect(404, done);
+            .expect(400, done);
     });
 
 });
